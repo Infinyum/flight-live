@@ -9,7 +9,7 @@ public final class Airport {
     private double longitude;
 
     /**
-     * Constructor for an airport object
+     * Constructor for an Airport object
      * @param n: name of the airport
      * @param ci: city where the airport is located
      * @param co: country where the airport is located
@@ -22,6 +22,10 @@ public final class Airport {
     }
 
 
+    /**
+     * toString override
+     * @return a decent way of displaying an Airport object's infos
+     */
     @Override
     public String toString() {
         return "AIRPORT " + name + " in " + city + " (" + country + ")\nICAO: " + icao
