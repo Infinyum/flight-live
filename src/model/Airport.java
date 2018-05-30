@@ -26,6 +26,6 @@ public final class Airport {
     @Override
     public String toString() {
         return "AIRPORT " + name + " in " + city + " (" + country + ")\nICAO: " + icao
-                + "\nPOSITION: " + latitude;
+                + "\nPOSITION: " + latitude + ", " + longitude;
     }
 }
