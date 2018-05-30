@@ -2,7 +2,6 @@ package model;
 
 public final class Airport {
     private String name;
-    // TODO: reference to a City object
     private String city;
     private String country;
     private String icao;
