@@ -67,8 +67,7 @@ final class CSVParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("NUMBER OF CITIES: " + cities.size());
-        System.out.println("NUMBER OF COUNTRIES: " + countries.size());
+
         return countries;
     }
 

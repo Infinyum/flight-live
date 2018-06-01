@@ -26,8 +26,17 @@ public final class Airport {
      */
     @Override
     public String toString() {
-        return "AIRPORT " + name + " in " + city + " (" + ")\nICAO: " + icao
-                + "\nPOSITION: " + latitude + ", " + longitude;
+        return "AIRPORT " + name + " in " + city + " (" + city.getCountry().getName() + ")" +
+                "\nICAO: " + icao + "\nPOSITION: " + latitude + ", " + longitude;
+    }
+
+
+    /**
+     * A shorter version of toString suitable for lists of airports
+     * @return a short string displaying only the name and the country of this airport
+     */
+    public String toStringShort() {
+        return "AIRPORT " + name + " (" + city.getCountry().getName() + ")";
     }
 
 

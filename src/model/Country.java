@@ -21,7 +21,7 @@ public final class Country {
      */
     @Override
     public String toString() {
-        return "THIS COUNTRY IS " + getName();
+        return "COUNTRY: " + getName();
     }
 
 
