@@ -25,6 +25,7 @@ final class CSVParser {
             while (line != null) {
                 String[] array = line.split(",");
 
+                // Retrieving the info in the csv
                 String name = array[0];
                 String cityName = array[1];
                 String countryName = array[2];
@@ -32,23 +33,30 @@ final class CSVParser {
                 double lat = Double.parseDouble(array[4]);
                 double lon = Double.parseDouble(array[5]);
 
-                Country country = new Country(countryName);
-                if (countries.contains(country)) {
-                    country = getCountryByName(countries, countryName);
-                }
-                else {
+                // Looking for an existing country in the array
+                Country country = getCountryByName(countries, countryName);
+                // ...if not found, then create a new Country object and add it to the array
+                if (country == null) {
+                    country = new Country(countryName);
                     countries.add(country);
                 }
 
-                City city = new City(cityName, country);
-                if (cities.contains(city))
-                    city = getCityByNameAndCountry(cities, cityName, country);
-                else
+                // Looking for an existing city in the array
+                City city = getCityByNameAndCountry(cities, cityName, country);
+                // ...if not found, then create a new City object and add it to the array
+                if (city == null) {
+                    city = new City(cityName, country);
                     cities.add(city);
+                }
 
+                // Creating a new Airport object
                 Airport airport = new Airport(name, city, icao, lat, lon);
+                // Adding the new airport to its city
                 city.addAirport(airport);
-                country.addCity(city);
+
+                // It the city doesn't appear in the list of cities of this country, we add it
+                if (getCityByNameAndCountry(country.getCities(), cityName, country) == null)
+                    country.addCity(city);
 
                 line = bufRead.readLine();
             }
@@ -59,7 +67,8 @@ final class CSVParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        System.out.println("NUMBER OF CITIES: " + cities.size());
+        System.out.println("NUMBER OF COUNTRIES: " + countries.size());
         return countries;
     }
 
@@ -87,7 +96,7 @@ final class CSVParser {
      */
     private static City getCityByNameAndCountry(ArrayList<City> cities, String cityName, Country country) {
         for (City c : cities) {
-            if (c.getCountry().equals(country) && c.getName().equals(cityName)) return c;
+            if (c.getName().equals(cityName) && c.getCountry().equals(country)) return c;
         }
         return null;
     }

@@ -11,7 +11,17 @@ public final class Country {
      * @param n: name of the country
      */
     public Country(String n) {
-        name = n; cities = null;
+        name = n; cities = new ArrayList<>();
+    }
+
+
+    /**
+     * toString override for a Country object
+     * @return a string displaying the name of the country
+     */
+    @Override
+    public String toString() {
+        return "THIS COUNTRY IS " + getName();
     }
 
 

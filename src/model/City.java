@@ -13,7 +13,17 @@ public final class City {
      * @param c: the country in which this city is located
      */
     public City(String n, Country c) {
-        name = n; country = c; airports = null;
+        name = n; country = c; airports = new ArrayList<>();
+    }
+
+
+    /**
+     * toString override for a City object
+     * @return a string displaying the name of the city and its country
+     */
+    @Override
+    public String toString() {
+        return "THIS CITY IS " + getName() + " (" + getCountry().getName() + ")";
     }
 
 
