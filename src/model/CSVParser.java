@@ -8,12 +8,16 @@ import java.util.ArrayList;
 final class CSVParser {
 
     /**
-     * Parses the csv file to create Airport objects and add them to airports
-     * @param airports: an ArrayList of Airport objects
-     * @return airports with the list of Airport objects
+     * Parses the csv file to create all the Airport, City and Country objects
+     * then returns the list of Country objects
+     * @return the list of countries
      */
-    static ArrayList<Airport> parseCSV(ArrayList<Airport> airports) {
+    static ArrayList<Country> parseCSV() {
 
+        ArrayList<Airport> airports = new ArrayList<>();
+        ArrayList<Country> countries = new ArrayList<>();
+
+        // Temporary variables
         Airport currentAirport;
 
         try {
@@ -44,6 +48,6 @@ final class CSVParser {
             e.printStackTrace();
         }
 
-        return airports;
+        return countries;
     }
 }

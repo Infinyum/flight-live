@@ -14,4 +14,11 @@ public final class City {
     public City(String n, ArrayList<Airport> a) {
         name = n; airports = a;
     }
+
+
+    /**
+     * Getter for the name attribute
+     * @return the name of this city
+     */
+    public String getName() { return name; }
 }

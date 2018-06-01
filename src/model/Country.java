@@ -14,4 +14,11 @@ public final class Country {
     public Country(String n, ArrayList<City> c) {
         name = n; cities = c;
     }
+
+
+    /**
+     * Getter for the name attribute
+     * @return the name of this country
+     */
+    public String getName() { return name; }
 }
