@@ -23,7 +23,6 @@ public final class Flight {
 
     @Override
     public String toString() {
-        return "FLIGHT " + Id + " - Icao :" + Icao + " - Speed: " + Spd + " - Trak: " + Trak + " - Type: " + Type
-                + " - Lat: " + Lat + " - Long: " + Long;
+        return "FLIGHT NUMBER " + Id + ", ICAO:" + "\nLAT: " + Lat + ", LON: " + Long;
     }
 }
