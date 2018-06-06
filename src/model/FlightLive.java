@@ -9,7 +9,7 @@ public final class FlightLive {
     public static void main(String[] args) {
         countries = CSVParser.parseCSV();
 
-        Country country = countries.get(42);
+        Country country = countries.get(45);
         City city = country.getCities().get(0);
         for (Airport a : city.getAirports()) System.out.println(a.toStringShort());
     }
