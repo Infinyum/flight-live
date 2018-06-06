@@ -18,20 +18,20 @@ import java.util.ArrayList;
 
 public final class FlightRequest {
 
-    public static FlightList asynch_request() throws Exception{
+    public static FlightList asynch_request(String filters) throws Exception {
         FlightList flights;
 
-        //Configurer le client http
+        // Setup http client
         DefaultAsyncHttpClientConfig.Builder clientBuilder = Dsl.config()
                 .setConnectTimeout(500)
                 .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36")
                 .setKeepAlive(false);
         AsyncHttpClient client = Dsl.asyncHttpClient(clientBuilder);
 
-        //Creer une requete de type GET
-        BoundRequestBuilder getRequest = client.prepareGet("https://public-api.adsbexchange.com/VirtualRadar/AircraftList.json?fCouQ=France");
+        // Create request GET
+        BoundRequestBuilder getRequest = client.prepareGet("https://public-api.adsbexchange.com/VirtualRadar/AircraftList.json?" + filters);
 
-        //Executer la requête et recuperer le résultat
+        // Execute et get result
         flights = getRequest.execute(new AsyncCompletionHandler<FlightList>() {
             @Override
             public FlightList onCompleted(Response response) throws Exception {
@@ -45,7 +45,17 @@ public final class FlightRequest {
             }
         }).get();
 
-        System.out.println(flights.getAcList());
+        return flights;
+    }
+
+    /**
+     * Give the flight from and to the airport given in argmuments
+     * @param icao_airport  ICAO of the airport
+     * @return Return a flightlist with the flights concerned
+     */
+    public static FlightList getFlightsAirport(String icao_airport) throws Exception {
+        String filters = "fAir=" + icao_airport;
+        FlightList flights = FlightRequest.asynch_request(filters);
 
         return flights;
     }
