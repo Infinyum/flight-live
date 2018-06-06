@@ -50,13 +50,38 @@ public final class FlightRequest {
 
     /**
      * Give the flight from and to the airport given in argmuments
-     * @param airport_name  Name of the airport
+     * @param airport_icao  ICAO of the airport
      * @return Return a FlightList with the flights concerned
      */
-    public static FlightList getFlightsAirport(String airport_name) throws Exception {
-        String airport_icao;
-        String filters = "fAir=";
+    public static FlightList getFlightsAirport(String airport_icao) throws Exception {
+        String filters = "fAirQ=";
         FlightList flights;
+
+        // Create filters
+        filters += airport_icao;
+
+        // Do request and test results
+        flights = FlightRequest.asynch_request(filters);
+        for(Flight f : flights.getAcList()) {
+            if (!airport_icao.equals(f.From.split(" ")[0]) && !airport_icao.equals(f.To.split(" ")[0])) {
+                System.err.println("Error : Request gived bad results");
+                return null;
+            }
+        }
+
+        return flights;
+    }
+
+    /**
+     * Give flights with destination the airport given in argmuments
+     * @param airport_name  Name of the destination airport
+     * @return Return a FlightList with the flights concerned
+     */
+    public static FlightList getFlightsAirportDest(String airport_name) throws Exception {
+        FlightList flights, res = new FlightList();
+        Flight[] res_acList;
+        int nb_dest = 0, i_res = 0;
+        String airport_icao;
 
         // Get Airport ICAO
         airport_icao = FlightLive.getAirportIcao(airport_name);
@@ -65,12 +90,34 @@ public final class FlightRequest {
             return null;
         }
 
-        // Create filters
-        filters += airport_icao;
+        // Do the request
+        flights = FlightRequest.getFlightsAirport(airport_icao);
+        if(flights == null)
+            return null;
 
-        // Do request and return
-        flights = FlightRequest.asynch_request(filters);
+        // Parse datas
+        for(int i = 0; i < flights.getAcList().length; i++) {
+            if(flights.getAcList()[i].To.split(" ")[0].equals(airport_icao))
+                nb_dest++;
+        }
+        if(nb_dest == 0) {
+            System.err.println("No flight to this destination");
+            return null;
+        }
 
-        return flights;
+        // Create acList for final result
+        res_acList = new Flight[nb_dest];
+
+        // Add flights to the result acList
+        for(int i = 0; i < flights.getAcList().length; i++) {
+            if(flights.getAcList()[i].To.split(" ")[0].equals(airport_icao))
+                res_acList[i_res] = flights.getAcList()[i];
+        }
+
+        // Setup res
+        res.setAcList(res_acList);
+        res.setLastDv(flights.getLastDv());
+
+        return res;
     }
 }

@@ -15,7 +15,7 @@ public final class FlightLive {
         System.out.println("Please enter an airport name: ");
         airportName = input.nextLine();
 
-        FlightList fl = FlightRequest.asynch_request(airportName);
+        FlightList fl = FlightRequest.getFlightsAirportDest(airportName);
         System.out.println(fl);
     }
 
