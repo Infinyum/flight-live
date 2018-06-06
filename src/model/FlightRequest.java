@@ -50,12 +50,26 @@ public final class FlightRequest {
 
     /**
      * Give the flight from and to the airport given in argmuments
-     * @param icao_airport  ICAO of the airport
-     * @return Return a flightlist with the flights concerned
+     * @param airport_name  Name of the airport
+     * @return Return a FlightList with the flights concerned
      */
-    public static FlightList getFlightsAirport(String icao_airport) throws Exception {
-        String filters = "fAir=" + icao_airport;
-        FlightList flights = FlightRequest.asynch_request(filters);
+    public static FlightList getFlightsAirport(String airport_name) throws Exception {
+        String airport_icao;
+        String filters = "fAir=";
+        FlightList flights;
+
+        // Get Airport ICAO
+        airport_icao = FlightLive.getAirportIcao(airport_name);
+        if(airport_icao == null) {
+            System.err.println("Error : Airport ICAO not found");
+            return null;
+        }
+
+        // Create filters
+        filters += airport_icao;
+
+        // Do request and return
+        flights = FlightRequest.asynch_request(filters);
 
         return flights;
     }

@@ -15,7 +15,7 @@ public final class FlightLive {
         System.out.println("Please enter an airport name: ");
         airportName = input.nextLine();
 
-        FlightList fl = FlightRequest.asynch_request();
+        FlightList fl = FlightRequest.asynch_request(airportName);
         System.out.println(fl);
     }
 
@@ -32,6 +32,9 @@ public final class FlightLive {
                 }
             }
         }
+
+        System.err.println("Error : Airport not found");
+
         return null;
     }
 }
