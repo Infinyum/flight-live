@@ -48,76 +48,94 @@ public final class FlightRequest {
         return flights;
     }
 
+
     /**
-     * Give the flight from and to the airport given in argmuments
-     * @param airport_icao  ICAO of the airport
+     * Returns the list of flights going to and coming from the airport whose icao is
+     * passed as an argument
+     * @param airport_icao ICAO of the airport
      * @return Return a FlightList with the flights concerned
      */
     public static FlightList getFlightsAirport(String airport_icao) throws Exception {
-        String filters = "fAirQ=";
-        FlightList flights;
-
-        // Create filters
-        filters += airport_icao;
-
-        // Do request and test results
-        flights = FlightRequest.asynch_request(filters);
-        for(Flight f : flights.getAcList()) {
-            if (!airport_icao.equals(f.From.split(" ")[0]) && !airport_icao.equals(f.To.split(" ")[0])) {
-                System.err.println("Error : Request gived bad results");
-                return null;
-            }
-        }
-
-        return flights;
+        // Creating the filter
+        String filter = "fAirQ=" + airport_icao;
+        // Executing and returning the request
+        return FlightRequest.asynch_request(filter);
     }
 
+
     /**
-     * Give flights with destination the airport given in argmuments
+     * Looks for flights going to the airport given in arguments
      * @param airport_name  Name of the destination airport
      * @return Return a FlightList with the flights concerned
      */
     public static FlightList getFlightsAirportDest(String airport_name) throws Exception {
-        FlightList flights, res = new FlightList();
-        Flight[] res_acList;
-        int nb_dest = 0, i_res = 0;
-        String airport_icao;
-
         // Get Airport ICAO
-        airport_icao = FlightLive.getAirportIcao(airport_name);
-        if(airport_icao == null) {
-            System.err.println("Error : Airport ICAO not found");
+        String airport_icao = FlightLive.getAirportIcao(airport_name);
+        if (airport_icao == null) {
+            System.err.println("ERROR:" + airport_name + "'s ICAO not found");
             return null;
         }
 
         // Do the request
-        flights = FlightRequest.getFlightsAirport(airport_icao);
-        if(flights == null)
-            return null;
+        FlightList flights = FlightRequest.getFlightsAirport(airport_icao);
 
-        // Parse datas
-        for(int i = 0; i < flights.getAcList().length; i++) {
+        // Parse data
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        for (int i = 0 ; i < flights.getAcList().length ; i++) {
             if(flights.getAcList()[i].To.split(" ")[0].equals(airport_icao))
-                nb_dest++;
+                res_fl.add(flights.getAcList()[i]);
         }
-        if(nb_dest == 0) {
+        if (res_fl.size() == 0) {
             System.err.println("No flight to this destination");
             return null;
         }
 
-        // Create acList for final result
-        res_acList = new Flight[nb_dest];
-
-        // Add flights to the result acList
-        for(int i = 0; i < flights.getAcList().length; i++) {
-            if(flights.getAcList()[i].To.split(" ")[0].equals(airport_icao))
-                res_acList[i_res] = flights.getAcList()[i];
-        }
-
-        // Setup res
-        res.setAcList(res_acList);
+        // Setting up res
+        FlightList res = new FlightList();
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
         res.setLastDv(flights.getLastDv());
 
         return res;
     }
+
+
+    /**
+     * Looks for flights coming from the airport given in arguments
+     * @param airport_name  Name of the departure airport
+     * @return Return a FlightList with the flights concerned
+     */
+    public static FlightList getFlightsAirportTo(String airport_name) throws Exception {
+        // Get Airport ICAO
+        String airport_icao = FlightLive.getAirportIcao(airport_name);
+        if (airport_icao == null) {
+            System.err.println("ERROR: Airport ICAO not found");
+            return null;
+        }
+
+        // Do the request
+        FlightList flights = FlightRequest.getFlightsAirport(airport_icao);
+
+        // Parse data
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        for (int i = 0 ; i < flights.getAcList().length ; i++) {
+            if(flights.getAcList()[i].From.split(" ")[0].equals(airport_icao))
+                res_fl.add(flights.getAcList()[i]);
+        }
+        if (res_fl.size() == 0) {
+            System.err.println("No flight from this destination");
+            return null;
+        }
+
+        // Setting up res
+        FlightList res = new FlightList();
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+        res.setLastDv(flights.getLastDv());
+
+        return res;
+    }
+
+
+    /*public static FlightList getFlightsBetweenAirports(String airport1_name, String airport2_name) {
+
+    }*/
 }

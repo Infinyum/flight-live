@@ -12,10 +12,10 @@ public final class FlightLive {
         Scanner input = new Scanner(System.in);
 
         String airportName;
-        System.out.println("Please enter an airport name: ");
-        airportName = input.nextLine();
+        //System.out.println("Please enter an airport name: ");
+        //airportName = input.nextLine();
 
-        FlightList fl = FlightRequest.getFlightsAirportDest(airportName);
+        FlightList fl = FlightRequest.getFlightsAirportDest("Charles de Gaulle International Airport");
         System.out.println(fl);
     }
 
