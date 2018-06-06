@@ -18,9 +18,9 @@ import java.util.ArrayList;
 
 public final class FlightRequest {
 
-    static FlightList flights;
+    public static FlightList asynch_request() throws Exception{
+        FlightList flights;
 
-    public static FlightList asynch_request() {
         //Configurer le client http
         DefaultAsyncHttpClientConfig.Builder clientBuilder = Dsl.config()
                 .setConnectTimeout(500)
@@ -32,15 +32,21 @@ public final class FlightRequest {
         BoundRequestBuilder getRequest = client.prepareGet("https://public-api.adsbexchange.com/VirtualRadar/AircraftList.json?fCouQ=France");
 
         //Executer la requête et recuperer le résultat
-        getRequest.execute(new AsyncCompletionHandler<Object>() {
+        flights = getRequest.execute(new AsyncCompletionHandler<FlightList>() {
             @Override
-            public Object onCompleted(Response response) throws Exception {
+            public FlightList onCompleted(Response response) throws Exception {
+                FlightList flights;
+
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES); //Ignorer les champs inutiles
-                FlightRequest.flights = mapper.readValue(response.getResponseBody(), FlightList.class); //Créer l'objet de plus haut niveau dans le dictionnaire json
+                flights = mapper.readValue(response.getResponseBody(), FlightList.class); //Créer l'objet de plus haut niveau dans le dictionnaire json
 
-                return response;
+                return flights;
             }
-        });
+        }).get();
+
+        System.out.println(flights.getAcList());
+
+        return flights;
     }
 }
