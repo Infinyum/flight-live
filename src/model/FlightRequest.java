@@ -69,7 +69,7 @@ public final class FlightRequest {
      * @param airport_name  Name of the destination airport
      * @return Return a FlightList with the flights concerned
      */
-    public static FlightList getFlightsAirportDest(String airport_name) throws Exception {
+    public static FlightList getFlightsAirportTo(String airport_name) throws Exception {
         // Get Airport ICAO
         String airport_icao = FlightLive.getAirportIcao(airport_name);
         if (airport_icao == null) {
