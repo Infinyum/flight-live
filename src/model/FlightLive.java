@@ -15,12 +15,14 @@ public final class FlightLive {
         //System.out.println("Please enter an airport name: ");
         //airportName = input.nextLine();
 
-        FlightList fl = FlightRequest.getFlightsBetweenAirports("John F Kennedy International Airport",
-                "Charles de Gaulle International Airport");
+        //FlightList fl = FlightRequest.getFlightsBetweenAirports("John F Kennedy International Airport",
+        //        "Charles de Gaulle International Airport");
         //System.out.println(fl);
         //System.out.println("SECOND COMMAND\n\n");
         //FlightRequest.displayFlightPositionHistory(fl.getAcList()[0]);
-        //FlightList fl2 = FlightRequest.getFlightsAroundPosition("33.43", "-112.01", "100");
+        FlightList fl2 = FlightRequest.getFlightsAroundPosition("33.43", "-112.01", "100");
+        System.out.println(fl2);
+        System.exit(0);
     }
 
     /**

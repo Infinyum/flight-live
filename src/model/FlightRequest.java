@@ -304,10 +304,9 @@ public final class FlightRequest {
         String filter = "lat=" + lat + "&lng=" + lon + "&fDstL=0&fDstU=" + radius;
         FlightList flights = asynch_request(filter);
 
-        if (flights == null || flights.getAcList().length == 0) {
-            System.out.println("\nNULL\n\n");
+        if (flights == null || flights.getAcList().length == 0)
             return null;
-        }
+
         return flights;
     }
 }
