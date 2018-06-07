@@ -11,14 +11,22 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.internal.ArrayIterator;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public final class FlightRequest {
 
+    /**
+     * Execute a http request to get informations about flights
+     * @param filters   Filters to apply to the request
+     * @return FlightList which contains flight results
+     * @throws Exception
+     */
     public static FlightList asynch_request(String filters) throws Exception {
         FlightList flights;
 
@@ -55,6 +63,7 @@ public final class FlightRequest {
      * passed as an argument
      * @param airport_icao ICAO of the airport
      * @return Return a FlightList with the flights concerned
+     * @throws Exception
      */
     public static FlightList getFlightsAirport(String airport_icao) throws Exception {
         // Creating the filter
@@ -68,6 +77,7 @@ public final class FlightRequest {
      * Looks for flights going to the airport given in arguments
      * @param airport_name  Name of the destination airport
      * @return Return a FlightList with the flights concerned
+     * @throws Exception
      */
     public static FlightList getFlightsAirportTo(String airport_name) throws Exception {
         // Get Airport ICAO
@@ -104,6 +114,7 @@ public final class FlightRequest {
      * Looks for flights coming from the airport given in arguments
      * @param airport_name  Name of the departure airport
      * @return Return a FlightList with the flights concerned
+     * @throws Exception
      */
     public static FlightList getFlightsAirportFrom(String airport_name) throws Exception {
         // Get Airport ICAO
@@ -145,7 +156,7 @@ public final class FlightRequest {
      */
     public static FlightList getFlightsBetweenAirports(String airport_dep, String airport_arr) throws Exception {
         FlightList from_airport = getFlightsAirportFrom(airport_dep);
-        FlightList to_airport = getFlightsAirportDest(airport_arr);
+        FlightList to_airport = getFlightsAirportTo(airport_arr);
 
         if (from_airport == null || to_airport == null)
             return null;
@@ -169,6 +180,98 @@ public final class FlightRequest {
 
         return res;
     }
+
+    /**
+     * Research flights with destination the city given in arguments
+     * @param city_name Name of the city
+     * @return FlightList which contains result flights
+     */
+    public static FlightList getFlightsCityTo(String city_name) throws Exception {
+        FlightList res = new FlightList();
+
+        // Research of the city object
+        City city = FlightLive.getCity(city_name);
+        if(city == null)
+            return null;
+
+        // Research of flights for each airport of the city
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        FlightList tmp;
+        for(Airport a : city.getAirports()) {
+            tmp = FlightRequest.getFlightsAirportTo(a.getName());
+            if(tmp != null)
+                res_fl.addAll(Arrays.asList(tmp.getAcList()));
+        }
+
+        // Add results to res FlightList
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+
+        return res;
+    }
+
+    /**
+     * Research flights from the city given in arguments
+     * @param city_name Name of the city
+     * @return FlightList which contains result flights
+     */
+    public static FlightList getFlightsCityFrom(String city_name) throws Exception {
+        FlightList res = new FlightList();
+
+        // Research of the city object
+        City city = FlightLive.getCity(city_name);
+        if(city == null)
+            return null;
+
+        // Research of flights for each airport of the city
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        FlightList tmp;
+        for(Airport a : city.getAirports()) {
+            tmp = FlightRequest.getFlightsAirportFrom(a.getName());
+            if(tmp != null)
+                res_fl.addAll(Arrays.asList(tmp.getAcList()));
+        }
+
+        // Add results to res FlightList
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+
+        return res;
+    }
+
+    /**
+     * Get flights from city1 to the city2 airports
+     * @param city1_name    Departure city
+     * @param city2_name    Destination city
+     * @return FlightList which contains flights between these 2 cities
+     * @throws Exception
+     */
+    public static FlightList getFlightsCities(String city1_name, String city2_name) throws Exception {
+        FlightList res = new FlightList();
+
+        // Research of the cities
+        City city1 = FlightLive.getCity(city1_name);
+        City city2 = FlightLive.getCity(city2_name);
+        if(city1 == null || city2 == null)
+            return null;
+
+        // Search flight between these 2 cities
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        FlightList tmp;
+        for(Airport a1 : city1.getAirports()) {
+            System.err.println("From : "+a1.getName());
+            for(Airport a2 : city2.getAirports()) {
+                System.err.println("To : "+a2.getName());
+                tmp = FlightRequest.getFlightsBetweenAirports(a1.getName(), a2.getName());
+                if(tmp != null)
+                    res_fl.addAll(Arrays.asList(tmp.getAcList()));
+            }
+        }
+
+        // Setup our result
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+
+        return res;
+    }
+
 
 
     public static void displayFlightPositionHistory(Flight f) {
