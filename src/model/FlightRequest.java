@@ -161,7 +161,7 @@ public final class FlightRequest {
         if (from_airport == null || to_airport == null)
             return null;
 
-        if (from_airport.getAcList() == null || to_airport.getAcList() == null)
+        if (from_airport.getAcList().length == 0 || to_airport.getAcList().length == 0)
             return null;
 
         ArrayList<Flight> dep_list = new ArrayList<>(Arrays.asList(from_airport.getAcList()));
@@ -298,5 +298,16 @@ public final class FlightRequest {
                 }
             }
         }
+    }
+
+    public static FlightList getFlightsAroundPosition(String lat, String lon, String radius) throws Exception {
+        String filter = "lat=" + lat + "&lng=" + lon + "&fDstL=0&fDstU=" + radius;
+        FlightList flights = asynch_request(filter);
+
+        if (flights == null || flights.getAcList().length == 0) {
+            System.out.println("\nNULL\n\n");
+            return null;
+        }
+        return flights;
     }
 }

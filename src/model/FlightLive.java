@@ -15,8 +15,12 @@ public final class FlightLive {
         //System.out.println("Please enter an airport name: ");
         //airportName = input.nextLine();
 
-        FlightList fl = FlightRequest.getFlightsCities("New York", "Paris");
-        System.out.println(fl);
+        FlightList fl = FlightRequest.getFlightsBetweenAirports("John F Kennedy International Airport",
+                "Charles de Gaulle International Airport");
+        //System.out.println(fl);
+        //System.out.println("SECOND COMMAND\n\n");
+        //FlightRequest.displayFlightPositionHistory(fl.getAcList()[0]);
+        //FlightList fl2 = FlightRequest.getFlightsAroundPosition("33.43", "-112.01", "100");
     }
 
     /**
