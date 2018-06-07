@@ -79,7 +79,7 @@ public final class FlightRequest {
      * @return Return a FlightList with the flights concerned
      * @throws Exception
      */
-    public static FlightList getFlightsAirportDest(String airport_name) throws Exception {
+    public static FlightList getFlightsAirportTo(String airport_name) throws Exception {
         // Get Airport ICAO
         String airport_icao = FlightLive.getAirportIcao(airport_name);
         if (airport_icao == null) {
@@ -271,8 +271,6 @@ public final class FlightRequest {
 
         return res;
     }
-
-
 
     /**
      * Displays the position history of the given flight
