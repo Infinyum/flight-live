@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public final class FlightRequest {
 
@@ -104,7 +105,7 @@ public final class FlightRequest {
      * @param airport_name  Name of the departure airport
      * @return Return a FlightList with the flights concerned
      */
-    public static FlightList getFlightsAirportTo(String airport_name) throws Exception {
+    public static FlightList getFlightsAirportFrom(String airport_name) throws Exception {
         // Get Airport ICAO
         String airport_icao = FlightLive.getAirportIcao(airport_name);
         if (airport_icao == null) {
@@ -135,7 +136,43 @@ public final class FlightRequest {
     }
 
 
-    /*public static FlightList getFlightsBetweenAirports(String airport1_name, String airport2_name) {
+    /**
+     * Looks for all the flights going from airport_dep to airport_arr
+     * @param airport_dep: departure airport
+     * @param airport_arr: arrival airport
+     * @return the FlightList object containing all the flights corresponding
+     * @throws Exception
+     */
+    public static FlightList getFlightsBetweenAirports(String airport_dep, String airport_arr) throws Exception {
+        FlightList from_airport = getFlightsAirportFrom(airport_dep);
+        FlightList to_airport = getFlightsAirportDest(airport_arr);
 
-    }*/
+        if (from_airport == null || to_airport == null)
+            return null;
+
+        if (from_airport.getAcList() == null || to_airport.getAcList() == null)
+            return null;
+
+        ArrayList<Flight> dep_list = new ArrayList<>(Arrays.asList(from_airport.getAcList()));
+        ArrayList<Flight> arr_list = new ArrayList<>(Arrays.asList(to_airport.getAcList()));
+
+        ArrayList<Flight> res_array = new ArrayList<>();
+
+        for (Flight f : dep_list) {
+            if (arr_list.contains(f)) res_array.add(f);
+        }
+
+        // Setting up res
+        FlightList res = new FlightList();
+        res.setAcList(res_array.stream().toArray(Flight[]::new));
+        res.setLastDv(from_airport.getLastDv());
+
+        return res;
+    }
+
+
+    public static void displayFlightPositionHistory(Flight f) {
+        String icao = f.getIcao();
+        String filter = "fIcoQ=" + icao + "&trFmt=f";
+    }
 }

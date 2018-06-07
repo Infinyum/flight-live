@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Objects;
+
 public final class Flight {
     /* /////////////////////////////////////////////////////////////////////////////// */
     /* --------------------------------- ATTRIBUTS ----------------------------------- */
@@ -23,10 +25,21 @@ public final class Flight {
     /* --------------------------------- METHODES- ----------------------------------- */
     /* /////////////////////////////////////////////////////////////////////////////// */
 
+    public String getIcao() { return Icao; }
+
     // Override ----------------------------------------------
 
     @Override
     public String toString() {
         return "FLIGHT NUMBER " + Id + ", ICAO:" + "\nLAT: " + Lat + ", LON: " + Long;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Flight flight = (Flight) o;
+        return Id == flight.Id;
     }
 }
