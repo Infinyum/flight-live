@@ -15,7 +15,7 @@ public final class FlightLive {
         //System.out.println("Please enter an airport name: ");
         //airportName = input.nextLine();
 
-        FlightList fl = FlightRequest.getFlightsAirportTo("Charles de Gaulle International Airport");
+        FlightList fl = FlightRequest.getFlightsCities("New York", "Paris");
         System.out.println(fl);
     }
 
@@ -34,6 +34,23 @@ public final class FlightLive {
         }
 
         System.err.println("Error : Airport not found");
+
+        return null;
+    }
+
+    /**
+     * Looks for the city with the given name and returns its code if found
+     * @param n: the name of the city to look for
+     * @return its the City object if found, null otherwise
+     */
+    public static City getCity(String n) {
+        for (Country c : countries) {
+            for (City ci : c.getCities()) {
+                if (ci.getName().equals(n)) return ci;
+            }
+        }
+
+        System.err.println("Error : City not found");
 
         return null;
     }
