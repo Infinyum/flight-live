@@ -15,7 +15,7 @@ public final class FlightLive {
         //System.out.println("Please enter an airport name: ");
         //airportName = input.nextLine();
 
-        FlightList fl = FlightRequest.getFlightsAirportDest("Charles de Gaulle International Airport");
+        FlightList fl = FlightRequest.getFlightsAirportTo("Charles de Gaulle International Airport");
         System.out.println(fl);
     }
 
