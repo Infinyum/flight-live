@@ -16,6 +16,7 @@ public final class Flight {
     public float Long;
     public String From;
     public String To;
+    public double[] Cot;
 
     /* /////////////////////////////////////////////////////////////////////////////// */
     /* ------------------------------- CONSTRUCTEURS --------------------------------- */
@@ -26,6 +27,8 @@ public final class Flight {
     /* /////////////////////////////////////////////////////////////////////////////// */
 
     public String getIcao() { return Icao; }
+
+    public double[] getCot() { return Cot; }
 
     // Override ----------------------------------------------
 
