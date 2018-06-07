@@ -79,7 +79,7 @@ public final class FlightRequest {
      * @return Return a FlightList with the flights concerned
      * @throws Exception
      */
-    public static FlightList getFlightsAirportTo(String airport_name) throws Exception {
+    public static FlightList getFlightsAirportDest(String airport_name) throws Exception {
         // Get Airport ICAO
         String airport_icao = FlightLive.getAirportIcao(airport_name);
         if (airport_icao == null) {
@@ -274,8 +274,31 @@ public final class FlightRequest {
 
 
 
-    public static void displayFlightPositionHistory(Flight f) {
+    /**
+     * Displays the position history of the given flight
+     * @param f: the flight to track
+     * @throws Exception
+     */
+    public static void displayFlightPositionHistory(Flight f) throws Exception {
         String icao = f.getIcao();
         String filter = "fIcoQ=" + icao + "&trFmt=f";
+        FlightList flights = asynch_request(filter);
+        //ArrayList<Double> position_history = new ArrayList<>(Arrays.asList(flights.getAcList()[0].getCot()));
+        if (flights != null && flights.getAcList() != null && flights.getAcList()[0] != null) {
+            double[] position_history = flights.getAcList()[0].getCot();
+            boolean lat = false;
+            for (int i = 0 ; i < position_history.length ; i++) {
+                if ((i+1) % 3 == 0) System.out.println();
+                else {
+                    if (!lat) {
+                        System.out.print("Lat: " + position_history[i]);
+                        lat = true;
+                    } else {
+                        System.out.println(", Lon: " + position_history[i] + "\n");
+                        lat = false;
+                    }
+                }
+            }
+        }
     }
 }
