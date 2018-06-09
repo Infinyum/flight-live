@@ -4,7 +4,7 @@ package model;
  * This class is useful for the JSON request. It stores the list of flights corresponding
  * to the filters as well as a timestamp for further queries.
  */
-public class FlightList {
+public final class FlightList {
     /* /////////////////////////////////////////////////////////////////////////////// */
     /* -------------------------------- ATTRIBUTES ----------------------------------- */
     /* /////////////////////////////////////////////////////////////////////////////// */
