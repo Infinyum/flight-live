@@ -1,11 +1,23 @@
 package model;
 
+/**
+ * This class represents an airport. It has access to the city in which it is located.
+ */
 public final class Airport {
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* -------------------------------- ATTRIBUTES ----------------------------------- */
+    /* /////////////////////////////////////////////////////////////////////////////// */
+
     private String name;
     private City city;
     private String icao;
     private double latitude;
     private double longitude;
+
+
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* -------------------------------- CONSTRUCTOR ---------------------------------- */
+    /* /////////////////////////////////////////////////////////////////////////////// */
 
     /**
      * Constructor for an Airport object
@@ -20,15 +32,9 @@ public final class Airport {
     }
 
 
-    /**
-     * toString override
-     * @return a decent way of displaying an Airport object's infos
-     */
-    @Override
-    public String toString() {
-        return "AIRPORT " + name + " in " + city + " (" + city.getCountry().getName() + ")" +
-                "\nICAO: " + icao + "\nPOSITION: " + latitude + ", " + longitude;
-    }
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* ---------------------------------- METHODS ------------------------------------ */
+    /* /////////////////////////////////////////////////////////////////////////////// */
 
 
     /**
@@ -66,4 +72,17 @@ public final class Airport {
      * @return the longitude of this airport
      */
     public double getLongitude() { return longitude; }
+
+
+    // Override ----------------------------------------------
+
+    /**
+     * toString override
+     * @return a decent way of displaying an Airport object's infos
+     */
+    @Override
+    public String toString() {
+        return "AIRPORT " + name + " in " + city + " (" + city.getCountry().getName() + ")" +
+                "\nICAO: " + icao + "\nPOSITION: " + latitude + ", " + longitude;
+    }
 }

@@ -2,9 +2,21 @@ package model;
 
 import java.util.ArrayList;
 
+/**
+ * This class represents a country. It has access to the cities belonging to it.
+ */
 public final class Country {
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* -------------------------------- ATTRIBUTES ----------------------------------- */
+    /* /////////////////////////////////////////////////////////////////////////////// */
+
     private String name;
     private ArrayList<City> cities;
+
+
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* -------------------------------- CONSTRUCTOR ---------------------------------- */
+    /* /////////////////////////////////////////////////////////////////////////////// */
 
     /**
      * Constructor for a Country object
@@ -15,14 +27,9 @@ public final class Country {
     }
 
 
-    /**
-     * toString override for a Country object
-     * @return a string displaying the name of the country
-     */
-    @Override
-    public String toString() {
-        return "COUNTRY: " + getName();
-    }
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* ---------------------------------- METHODS ------------------------------------ */
+    /* /////////////////////////////////////////////////////////////////////////////// */
 
 
     /**
@@ -40,6 +47,28 @@ public final class Country {
 
 
     /**
+     * Add a city to the cities array
+     * @param c: the city to add
+     */
+    public void addCity(City c) {
+        if (c != null)
+            getCities().add(c);
+    }
+
+
+    // Override ----------------------------------------------
+
+    /**
+     * toString override for a Country object
+     * @return a string displaying the name of the country
+     */
+    @Override
+    public String toString() {
+        return "COUNTRY: " + getName();
+    }
+
+
+    /**
      * Override of the equals method
      * It only compares the name of the specified country on purpose
      * @param o: the object to compare
@@ -51,15 +80,5 @@ public final class Country {
         if (o == null || getClass() != o.getClass()) return false;
         Country country = (Country) o;
         return getName().equals(country.getName());
-    }
-
-
-    /**
-     * Add a city to the cities array
-     * @param c: the city to add
-     */
-    public void addCity(City c) {
-        if (c != null)
-            getCities().add(c);
     }
 }

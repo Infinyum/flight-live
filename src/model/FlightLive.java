@@ -3,27 +3,43 @@ package model;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * The main class of the application. It contains the list of countries and therefore
+ * all the objects of the program. Therefore, this class is supposed to perform some
+ * analyses with the data.
+ */
 public final class FlightLive {
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* -------------------------------- ATTRIBUTES ----------------------------------- */
+    /* /////////////////////////////////////////////////////////////////////////////// */
+
     private static ArrayList<Country> countries = null;
 
+    /**
+     * Main class of the program
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         countries = CSVParser.parseCSV();
 
         Scanner input = new Scanner(System.in);
 
         String airportName;
-        //System.out.println("Please enter an airport name: ");
+        System.out.println("Please enter an airport name: ");
         //airportName = input.nextLine();
 
-        //FlightList fl = FlightRequest.getFlightsBetweenAirports("John F Kennedy International Airport",
-        //        "Charles de Gaulle International Airport");
-        //System.out.println(fl);
-        //System.out.println("SECOND COMMAND\n\n");
-        //FlightRequest.displayFlightPositionHistory(fl.getAcList()[0]);
-        FlightList fl2 = FlightRequest.getFlightsAroundPosition("33.43", "-112.01", "100");
-        System.out.println(fl2);
+        FlightList fl = FlightRequest.getFlightsBetweenAirports("John F Kennedy International Airport",
+                "Charles de Gaulle International Airport");
+        System.out.println(fl);
+
         System.exit(0);
     }
+
+
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* ---------------------------------- METHODS ------------------------------------ */
+    /* /////////////////////////////////////////////////////////////////////////////// */
 
     /**
      * Looks for the airport with the given name and returns its code if found
@@ -38,11 +54,10 @@ public final class FlightLive {
                 }
             }
         }
-
-        System.err.println("Error : Airport not found");
-
+        System.err.println("Error: airport not found");
         return null;
     }
+
 
     /**
      * Looks for the city with the given name and returns its code if found
@@ -55,9 +70,7 @@ public final class FlightLive {
                 if (ci.getName().equals(n)) return ci;
             }
         }
-
-        System.err.println("Error : City not found");
-
+        System.err.println("Error: city not found");
         return null;
     }
 }

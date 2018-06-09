@@ -1,10 +1,12 @@
 package model;
 
-import java.util.Objects;
-
+/**
+ * This class represents a single flight. It is automatically created when executing a JSON
+ * request. The name of the attributes has to match the name of the JSON variables.
+ */
 public final class Flight {
     /* /////////////////////////////////////////////////////////////////////////////// */
-    /* --------------------------------- ATTRIBUTS ----------------------------------- */
+    /* -------------------------------- ATTRIBUTES ----------------------------------- */
     /* /////////////////////////////////////////////////////////////////////////////// */
 
     public int Id;
@@ -19,16 +21,30 @@ public final class Flight {
     public double[] Cot;
 
     /* /////////////////////////////////////////////////////////////////////////////// */
-    /* ------------------------------- CONSTRUCTEURS --------------------------------- */
+    /* -------------------------------- CONSTRUCTOR ---------------------------------- */
     /* /////////////////////////////////////////////////////////////////////////////// */
 
+    // The objects of this class are automatically created during the JSON request
+
+
     /* /////////////////////////////////////////////////////////////////////////////// */
-    /* --------------------------------- METHODES- ----------------------------------- */
+    /* ---------------------------------- METHODS ------------------------------------ */
     /* /////////////////////////////////////////////////////////////////////////////// */
 
+
+    /**
+     * Getter of the icao attribute
+     * @return this object's icao attribute
+     */
     public String getIcao() { return Icao; }
 
+
+    /**
+     * Getter of the cot attribute
+     * @return this object's cot attribute
+     */
     public double[] getCot() { return Cot; }
+
 
     // Override ----------------------------------------------
 

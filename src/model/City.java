@@ -2,10 +2,23 @@ package model;
 
 import java.util.ArrayList;
 
+/**
+ * This class represents a city. It has access to the country in which it is located
+ * as well as all the airports in it.
+ */
 public final class City {
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* -------------------------------- ATTRIBUTES ----------------------------------- */
+    /* /////////////////////////////////////////////////////////////////////////////// */
+
     private String name;
     private Country country;
     private ArrayList<Airport> airports;
+
+
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* -------------------------------- CONSTRUCTOR ---------------------------------- */
+    /* /////////////////////////////////////////////////////////////////////////////// */
 
     /**
      * Constructor for a City object
@@ -17,14 +30,9 @@ public final class City {
     }
 
 
-    /**
-     * toString override for a City object
-     * @return a string displaying the name of the city and its country
-     */
-    @Override
-    public String toString() {
-        return "THIS CITY IS " + getName() + " (" + getCountry().getName() + ")";
-    }
+    /* /////////////////////////////////////////////////////////////////////////////// */
+    /* ---------------------------------- METHODS ------------------------------------ */
+    /* /////////////////////////////////////////////////////////////////////////////// */
 
 
     /**
@@ -49,6 +57,28 @@ public final class City {
 
 
     /**
+     * Add an airport to the airport array
+     * @param a: the airport to add
+     */
+    public void addAirport(Airport a) {
+        if (a != null)
+            getAirports().add(a);
+    }
+
+
+    // Override ----------------------------------------------
+
+    /**
+     * toString override for a City object
+     * @return a string displaying the name of the city and its country
+     */
+    @Override
+    public String toString() {
+        return "THIS CITY IS " + getName() + " (" + getCountry().getName() + ")";
+    }
+
+
+    /**
      * Override of the equals method
      * It only compares the name of the specified country on purpose
      * @param o: the object to compare
@@ -61,15 +91,5 @@ public final class City {
         City city = (City) o;
         return getName().equals(city.getName()) &&
                 getCountry().equals(city.getCountry());
-    }
-
-
-    /**
-     * Add an airport to the airport array
-     * @param a: the airport to add
-     */
-    public void addAirport(Airport a) {
-        if (a != null)
-            getAirports().add(a);
     }
 }
