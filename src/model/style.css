@@ -1,0 +1,30 @@
+/*
+ * COLOR SCHEME FOR THE APPLICATION
+ * Background color: #f8f9fa
+ * Text color: #495057
+ * Stroke color: #ced4da
+ * Hover color: #e9ecef
+ */
+
+#root {
+	-fx-text-base-color: #495057;
+}
+
+.menu-bar {
+	-fx-background-color: #f8f9fa;
+}
+
+.combo-box {
+	-fx-background-color: #f8f9fa;
+	-fx-prompt-text-fill: #495057;
+}
+
+#go {
+	-fx-background-color: #495057;
+	-fx-text-fill: white;
+}
+
+#go:hover {
+	-fx-background-color: white;
+	-fx-text-fill: #495057;
+}
