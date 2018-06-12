@@ -68,12 +68,15 @@ public final class FlightRequest {
     /**
      * Returns the list of flights going to and coming from the airport whose icao is
      * passed as an argument
-     * @param airport_icao ICAO of the airport
+     * @param airport_name name of the airport
      * @return Return a FlightList with the flights concerned
      * @throws Exception
      */
-    public static FlightList getFlightsAirport(String airport_icao) throws Exception {
-        String filter = "fAirQ=" + airport_icao;        // Creating the filter
+    public static FlightList getFlightsAirport(String airport_name) throws Exception {
+        String icao = FlightLive.getAirportIcao(airport_name);
+        if (icao == null)
+            return null;
+        String filter = "fAirQ=" + icao;        // Creating the filter
         return FlightRequest.asynch_request(filter);    // Executing and returning the request
     }
 
