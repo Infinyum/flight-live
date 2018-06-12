@@ -4,3 +4,5 @@
 ## Authors
 Developped by Jordane MINET and Robin MALMASSON 
 as part of a computer engineering course taught at Polytech Paris-Sud
+
+May-June 2018
