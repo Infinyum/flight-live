@@ -51,6 +51,20 @@ public final class FlightLive {
 
 
     /**
+     * Looks for a country with the given name
+     * @param countryName the name of the country
+     * @return the corresponding country object, null otherwise
+     */
+    public Country getCountryByName(String countryName) {
+        for (Country c : countries) {
+            if (c.getName().equals(countryName))
+                return c;
+        }
+        return null;
+    }
+
+
+    /**
      * Looks for the airport with the given name and returns its code if found
      * @param n: the name of the airport to look for
      * @return its icao code if found, null otherwise

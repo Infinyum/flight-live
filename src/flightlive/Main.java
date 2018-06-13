@@ -15,7 +15,7 @@ public class Main extends Application {
         loader.setLocation(getClass().getResource("design.fxml"));
         AnchorPane root = loader.load();
 
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, 700, 800);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

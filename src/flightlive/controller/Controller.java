@@ -2,6 +2,7 @@ package flightlive.controller;
 
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+import flightlive.model.City;
 import flightlive.model.Country;
 import flightlive.model.FlightLive;
 import javafx.fxml.FXML;
@@ -26,15 +27,18 @@ public class Controller implements Initializable {
     /* /////////////////////////////////////////////////////////////////////////////// */
 
     private FlightLive model;
-    @FXML private ComboBox cbxFromCountry;
-    @FXML private ComboBox cbxFromCity;
-    @FXML private ComboBox cbxFromAirport;
-    @FXML private ComboBox cbxToCountry;
-    @FXML private ComboBox cbxToCity;
-    @FXML private ComboBox cbxToAirport;
+    @FXML private ComboBox<String> cbxFromCountry;
+    @FXML private ComboBox<String> cbxFromCity;
+    @FXML private ComboBox<String> cbxFromAirport;
+    @FXML private ComboBox<String> cbxToCountry;
+    @FXML private ComboBox<String> cbxToCity;
+    @FXML private ComboBox<String> cbxToAirport;
     @FXML private Button btnGo;
     @FXML private ListView lvFlights;
     @FXML private Pane paneEarth;
+
+    private Country currentCountryFrom;
+    private Country currentCountryTo;
 
 
     /* /////////////////////////////////////////////////////////////////////////////// */
@@ -44,13 +48,33 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        model = new FlightLive();
-        Group root3D = new Group();
-        setEarth(paneEarth, root3D);
-        initializeCountryCbx();
+        model = new FlightLive();       // Creating the model
+        Group root3D = new Group();     // Groups the 3D objects within the pane
+        setEarth(paneEarth, root3D);    // Loading the earth
+        initializeCountryCbx();         // Loading the countries list
+
+        cbxToCountry.setOnAction(event -> updateCurrentCountryTo());
     }
 
 
+    /**
+     * Updates the currentCountryTo object and sets the corresponding cities list
+     */
+    private void updateCurrentCountryTo() {
+        currentCountryTo = model.getCountryByName(cbxToCountry.getValue());
+        if (currentCountryTo != null) {
+            for (City c : currentCountryTo.getCities()) {
+                cbxToCity.getItems().add(c.getName());
+            }
+        } else {
+            cbxToCity.getItems().clear();
+        }
+    }
+
+
+    /**
+     * Initializes the ComboBox for the countries
+     */
     private void initializeCountryCbx() {
         ArrayList<Country> countries = model.getCountries();
         for (Country c : countries) {
