@@ -2,21 +2,20 @@ package flightlive.controller;
 
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+import flightlive.model.Country;
 import flightlive.model.FlightLive;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.MeshView;
-import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import static javafx.scene.SceneAntialiasing.DISABLED;
@@ -48,9 +47,24 @@ public class Controller implements Initializable {
         model = new FlightLive();
         Group root3D = new Group();
         setEarth(paneEarth, root3D);
+        initializeCountryCbx();
     }
 
 
+    private void initializeCountryCbx() {
+        ArrayList<Country> countries = model.getCountries();
+        for (Country c : countries) {
+            cbxFromCountry.getItems().add(c.getName());
+            cbxToCountry.getItems().add(c.getName());
+        }
+    }
+
+
+    /**
+     * Adds the earth 3D object on the pane
+     * @param pane the pane in which the earth is placed
+     * @param root3D the group containing all the 3D
+     */
     private void setEarth(Pane pane, Group root3D) {
         // Load geometry
         ObjModelImporter objImporter = new ObjModelImporter();
@@ -69,18 +83,19 @@ public class Controller implements Initializable {
         new CameraManager(camera, pane, root3D);
 
         // Add point light
-        PointLight light = new PointLight(Color.WHITE);
+        /*PointLight light = new PointLight(Color.WHITE);
         light.setTranslateX(-180);
         light.setTranslateY(-90);
         light.setTranslateZ(-120);
         light.getScope().addAll(root3D);
-        root3D.getChildren().add(light);
+        root3D.getChildren().add(light);*/
 
         // Add ambient light
         AmbientLight ambientLight = new AmbientLight(Color.WHITE);
         ambientLight.getScope().addAll(root3D);
         root3D.getChildren().add(ambientLight);
 
+        // Creating a subscene
         SubScene subScene = new SubScene(root3D, 500, 500, true, DISABLED);
         subScene.setCamera(camera);
         subScene.setFill(Color.rgb(248, 249, 250));

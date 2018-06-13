@@ -44,6 +44,13 @@ public final class FlightLive {
     /* /////////////////////////////////////////////////////////////////////////////// */
 
     /**
+     * Getter for the countries attribute
+     * @return this object's countries attribute
+     */
+    public ArrayList<Country> getCountries() { return countries; }
+
+
+    /**
      * Looks for the airport with the given name and returns its code if found
      * @param n: the name of the airport to look for
      * @return its icao code if found, null otherwise
