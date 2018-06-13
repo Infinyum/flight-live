@@ -1,4 +1,4 @@
-package model;
+package flightlive.model;
 
 /**
  * This class is useful for the JSON request. It stores the list of flights corresponding

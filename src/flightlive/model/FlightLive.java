@@ -1,4 +1,4 @@
-package model;
+package flightlive.model;
 
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHttpClient;
@@ -7,15 +7,9 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.Dsl;
 import org.asynchttpclient.Response;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.internal.ArrayIterator;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package model;
+package flightlive.model;
 
 /**
  * This class represents a single flight. It is automatically created when executing a JSON

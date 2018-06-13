@@ -1,4 +1,5 @@
-package model;
+package flightlive.model;
+
 
 /**
  * This class represents an airport. It has access to the city in which it is located.
@@ -9,7 +10,7 @@ public final class Airport {
     /* /////////////////////////////////////////////////////////////////////////////// */
 
     private String name;
-    private City city;
+    private flightlive.model.City city;
     private String icao;
     private double latitude;
     private double longitude;

@@ -1,4 +1,4 @@
-package model;
+package flightlive.model;
 
 import java.util.ArrayList;
 
