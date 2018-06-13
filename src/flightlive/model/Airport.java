@@ -10,7 +10,7 @@ public final class Airport {
     /* /////////////////////////////////////////////////////////////////////////////// */
 
     private String name;
-    private flightlive.model.City city;
+    private City city;
     private String icao;
     private double latitude;
     private double longitude;
