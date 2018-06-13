@@ -55,7 +55,7 @@ public class Controller implements Initializable {
         // Load geometry
         ObjModelImporter objImporter = new ObjModelImporter();
         try {
-            URL modelUrl = this.getClass().getResource("Earth/earth.obj");
+            URL modelUrl = this.getClass().getResource("/flightlive/res/Earth/earth.obj");
             objImporter.read(modelUrl);
         } catch(ImportException e) {
             System.out.println(e.getMessage());
