@@ -47,6 +47,20 @@ public final class Country {
 
 
     /**
+     * Looks for the city with the given name and returns its code if found
+     * @param cityName: the name of the city to look for
+     * @return City object if found, null otherwise
+     */
+    public City getCityByName(String cityName) {
+        for (City c : cities) {
+            if (c.getName().equals(cityName))
+                return c;
+        }
+        return null;
+    }
+
+
+    /**
      * Add a city to the cities array
      * @param c: the city to add
      */

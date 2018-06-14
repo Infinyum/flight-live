@@ -2,6 +2,7 @@ package flightlive.controller;
 
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+import flightlive.model.Airport;
 import flightlive.model.City;
 import flightlive.model.Country;
 import flightlive.model.FlightLive;
@@ -39,6 +40,8 @@ public class Controller implements Initializable {
 
     private Country currentCountryFrom;
     private Country currentCountryTo;
+    private City currentCityFrom;
+    private City currentCityTo;
 
 
     /* /////////////////////////////////////////////////////////////////////////////// */
@@ -48,12 +51,48 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         model = new FlightLive();       // Creating the model
         Group root3D = new Group();     // Groups the 3D objects within the pane
         setEarth(paneEarth, root3D);    // Loading the earth
         initializeCountryCbx();         // Loading the countries list
 
+        // Updating the ComboBoxes of cities according to the selected country
         cbxToCountry.setOnAction(event -> updateCurrentCountryTo());
+        cbxFromCountry.setOnAction(event -> updateCurrentCountryFrom());
+
+        cbxToCity.setOnAction(event -> updateCurrentCityTo());
+        cbxFromCity.setOnAction(event -> updateCurrentCityFrom());
+    }
+
+
+    /**
+     * Updates the currentCityFrom object and sets the corresponding airports list
+     */
+    private void updateCurrentCityFrom() {
+        // Retrieving current city
+        currentCityFrom = currentCountryFrom.getCityByName(cbxFromCity.getValue());
+        if (currentCityFrom != null) {
+            cbxFromAirport.getItems().clear();    // Clearing the current list
+            for (Airport a : currentCityFrom.getAirports())
+                cbxFromAirport.getItems().add(a.getName());
+        } else
+            cbxFromAirport.getItems().clear();
+    }
+
+
+    /**
+     * Updates the currentCityTo object and sets the corresponding airports list
+     */
+    private void updateCurrentCityTo() {
+        // Retrieving current city
+        currentCityTo = currentCountryTo.getCityByName(cbxToCity.getValue());
+        if (currentCityTo != null) {
+            cbxToAirport.getItems().clear();    // Clearing the current list
+            for (Airport a : currentCityTo.getAirports())
+                cbxToAirport.getItems().add(a.getName());
+        } else
+            cbxToAirport.getItems().clear();
     }
 
 
@@ -61,14 +100,31 @@ public class Controller implements Initializable {
      * Updates the currentCountryTo object and sets the corresponding cities list
      */
     private void updateCurrentCountryTo() {
+        // Retrieving current country
         currentCountryTo = model.getCountryByName(cbxToCountry.getValue());
         if (currentCountryTo != null) {
-            for (City c : currentCountryTo.getCities()) {
+            cbxToCity.getItems().clear();   // Clearing the current list
+            // Adding the new cities
+            for (City c : currentCountryTo.getCities())
                 cbxToCity.getItems().add(c.getName());
-            }
-        } else {
+        } else
             cbxToCity.getItems().clear();
-        }
+    }
+
+
+    /**
+     * Updates the currentCountryFrom object and sets the corresponding cities list
+     */
+    private void updateCurrentCountryFrom() {
+        // Retrieving current country
+        currentCountryFrom = model.getCountryByName(cbxFromCountry.getValue());
+        if (currentCountryFrom != null) {
+            cbxFromCity.getItems().clear();   // Clearing the current list
+            // Adding the new cities
+            for (City c : currentCountryFrom.getCities())
+                cbxFromCity.getItems().add(c.getName());
+        } else
+            cbxFromCity.getItems().clear();
     }
 
 

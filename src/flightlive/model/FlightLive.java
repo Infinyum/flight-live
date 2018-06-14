@@ -85,7 +85,7 @@ public final class FlightLive {
     /**
      * Looks for the city with the given name and returns its code if found
      * @param n: the name of the city to look for
-     * @return its the City object if found, null otherwise
+     * @return the City object if found, null otherwise
      */
     public City getCity(String n) {
         for (Country c : countries) {
