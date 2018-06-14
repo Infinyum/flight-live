@@ -65,7 +65,7 @@ public final class FlightLive {
 
 
     /**
-     * Looks for the airport with the given name and returns its code if found
+     * Looks for the airport with the given name and returns its icao code if found
      * @param n: the name of the airport to look for
      * @return its icao code if found, null otherwise
      */
@@ -73,7 +73,8 @@ public final class FlightLive {
         for (Country c : countries) {
             for (City ci : c.getCities()) {
                 for (Airport a : ci.getAirports()) {
-                    if (a.getName().equals(n)) return a.getIcao();
+                    if (a.getName().equals(n))
+                        return a.getIcao();
                 }
             }
         }
@@ -139,15 +140,12 @@ public final class FlightLive {
     /**
      * Returns the list of flights going to and coming from the airport whose icao is
      * passed as an argument
-     * @param airport_name name of the airport
+     * @param airport_icao icao of the airport
      * @return Return a FlightList with the flights concerned
      * @throws Exception
      */
-    public FlightList getFlightsAirport(String airport_name) throws Exception {
-        String icao = getAirportIcao(airport_name);
-        if (icao == null)
-            return null;
-        String filter = "fAirQ=" + icao;        // Creating the filter
+    public FlightList getFlightsAirport(String airport_icao) throws Exception {
+        String filter = "fAirQ=" + airport_icao; // Creating the filter
         return asynch_request(filter);    // Executing and returning the request
     }
 
@@ -166,6 +164,8 @@ public final class FlightLive {
         }
         // Making the request
         FlightList flights = getFlightsAirport(airport_icao);
+        if (flights == null)
+            return null;
 
         // Parsing data
         ArrayList<Flight> res_fl = new ArrayList<>();
@@ -201,6 +201,8 @@ public final class FlightLive {
         }
         // Making the request
         FlightList flights = getFlightsAirport(airport_icao);
+        if (flights == null)
+            return null;
 
         // Parsing data
         ArrayList<Flight> res_fl = new ArrayList<>();
@@ -357,7 +359,6 @@ public final class FlightLive {
         String icao = f.getIcao();
         String filter = "fIcoQ=" + icao + "&trFmt=f";
         FlightList flights = asynch_request(filter);
-        //ArrayList<Double> position_history = new ArrayList<>(Arrays.asList(flights.getAcList()[0].getCot()));
         if (flights != null && flights.getAcList() != null && flights.getAcList()[0] != null) {
             double[] position_history = flights.getAcList()[0].getCot();
             boolean lat = false;

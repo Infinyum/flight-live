@@ -2,19 +2,18 @@ package flightlive.controller;
 
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
-import flightlive.model.Airport;
-import flightlive.model.City;
-import flightlive.model.Country;
-import flightlive.model.FlightLive;
+import flightlive.model.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.*;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
+import javafx.stage.Modality;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,12 +37,13 @@ public class Controller implements Initializable {
     @FXML private ListView lvFlights;
     @FXML private Pane paneEarth;
 
-    private Country currentCountryFrom;
-    private Country currentCountryTo;
-    private City currentCityFrom;
-    private City currentCityTo;
-    private Airport currentAirportFrom;
-    private Airport currentAirportTo;
+    private Country currentCountryFrom = null;
+    private Country currentCountryTo = null;
+    private City currentCityFrom = null;
+    private City currentCityTo = null;
+    private Airport currentAirportFrom = null;
+    private Airport currentAirportTo = null;
+    private FlightList currentFlightList = null;
 
 
     /* /////////////////////////////////////////////////////////////////////////////// */
@@ -75,8 +75,82 @@ public class Controller implements Initializable {
     }
 
 
-    private void executeRequest() {
+    /**
+     * Executes the right request based on the currently selected fields (e.g. not looking
+     * for an airport if no airport is selected)
+     */
+    private int executeRequest() {
+        // Checking for any missing information
+        if (currentCountryFrom == null) {
+            createDialogBox(1);
+            return -1;
+        }
+        else if (currentCountryTo == null) {
+            createDialogBox(2);
+            return -1;
+        }
+        else if (currentCityFrom == null) {
+            createDialogBox(3);
+            return -1;
+        }
+        else if (currentCityTo == null) {
+            createDialogBox(4);
+            return -1;
+        }
 
+        // First case: all information provided
+        if (currentAirportFrom != null && currentAirportTo != null) {
+            try {
+                currentFlightList = model.getFlightsBetweenAirports(currentAirportFrom.getName(), currentAirportTo.getName());
+            } catch (Exception e) {
+                currentFlightList = null;
+                return -1;
+            }
+        }
+        updateListView();   // Updating the ListView with the list of flights
+        return 0;
+    }
+
+
+    private void updateListView() {
+        if (currentFlightList != null) {
+            lvFlights.getItems().clear();
+            for (Flight f : currentFlightList.getAcList())
+                lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), currentCityTo.getName()));
+        } else
+            lvFlights.getItems().clear();
+    }
+
+
+    /**
+     * Creates a dialog box specifically for the error encountered
+     * @param param describes the error type
+     */
+    private void createDialogBox(int param) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Missing Information");
+        alert.setHeaderText(null);
+        alert.initModality(Modality.APPLICATION_MODAL);
+        switch (param) {
+            case 1:
+                alert.setContentText("Please specify a country of departure");
+                alert.showAndWait();
+                break;
+            case 2:
+                alert.setContentText("Please specify a country of arrival");
+                alert.showAndWait();
+                break;
+            case 3:
+                alert.setContentText("Please specify a city of departure");
+                alert.showAndWait();
+                break;
+            case 4:
+                alert.setContentText("Please specify a city of arrival");
+                alert.showAndWait();
+                break;
+            default:
+                break;
+        }
     }
 
 
@@ -86,6 +160,7 @@ public class Controller implements Initializable {
     private void updateCurrentCityFrom() {
         // Retrieving current city
         currentCityFrom = currentCountryFrom.getCityByName(cbxFromCity.getValue());
+        currentAirportFrom = null;    // Resetting current value
         if (currentCityFrom != null) {
             cbxFromAirport.getItems().clear();    // Clearing the current list
             for (Airport a : currentCityFrom.getAirports())
@@ -101,6 +176,7 @@ public class Controller implements Initializable {
     private void updateCurrentCityTo() {
         // Retrieving current city
         currentCityTo = currentCountryTo.getCityByName(cbxToCity.getValue());
+        currentAirportTo = null;    // Resetting current value
         if (currentCityTo != null) {
             cbxToAirport.getItems().clear();    // Clearing the current list
             for (Airport a : currentCityTo.getAirports())
@@ -116,6 +192,7 @@ public class Controller implements Initializable {
     private void updateCurrentCountryTo() {
         // Retrieving current country
         currentCountryTo = model.getCountryByName(cbxToCountry.getValue());
+        currentCityTo = null; currentAirportTo = null; // Resetting current values
         if (currentCountryTo != null) {
             cbxToCity.getItems().clear();   // Clearing the current list
             // Adding the new cities
@@ -132,6 +209,7 @@ public class Controller implements Initializable {
     private void updateCurrentCountryFrom() {
         // Retrieving current country
         currentCountryFrom = model.getCountryByName(cbxFromCountry.getValue());
+        currentCityFrom = null; currentAirportFrom = null; // Resetting current values
         if (currentCountryFrom != null) {
             cbxFromCity.getItems().clear();   // Clearing the current list
             // Adding the new cities
