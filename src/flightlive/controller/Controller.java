@@ -42,6 +42,8 @@ public class Controller implements Initializable {
     private Country currentCountryTo;
     private City currentCityFrom;
     private City currentCityTo;
+    private Airport currentAirportFrom;
+    private Airport currentAirportTo;
 
 
     /* /////////////////////////////////////////////////////////////////////////////// */
@@ -51,18 +53,30 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         model = new FlightLive();       // Creating the model
         Group root3D = new Group();     // Groups the 3D objects within the pane
         setEarth(paneEarth, root3D);    // Loading the earth
-        initializeCountryCbx();         // Loading the countries list
+        initializeCountryCbx();         // Loading the countries list in the ComboBoxes
 
         // Updating the ComboBoxes of cities according to the selected country
         cbxToCountry.setOnAction(event -> updateCurrentCountryTo());
         cbxFromCountry.setOnAction(event -> updateCurrentCountryFrom());
-
+        // Updating the ComboBoxes of airports according to the selected city
         cbxToCity.setOnAction(event -> updateCurrentCityTo());
         cbxFromCity.setOnAction(event -> updateCurrentCityFrom());
+
+        // Updating the current airports
+        cbxToAirport.setOnAction(event ->
+                currentAirportTo = currentCityTo.getAirportByName(cbxToAirport.getValue()));
+        cbxFromAirport.setOnAction(event ->
+                currentAirportFrom = currentCityFrom.getAirportByName(cbxFromAirport.getValue()));
+
+        btnGo.setOnAction(event -> executeRequest()); // Executing request when button pressed
+    }
+
+
+    private void executeRequest() {
+
     }
 
 

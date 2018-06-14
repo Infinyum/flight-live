@@ -57,6 +57,20 @@ public final class City {
 
 
     /**
+     * Looks for the airport with the given name and returns its code if found
+     * @param airportName the name of the airport to look for
+     * @return Airport object if found, null otherwise
+     */
+    public Airport getAirportByName(String airportName) {
+        for (Airport a : airports) {
+            if (a.getName().equals(airportName))
+                return a;
+        }
+        return null;
+    }
+
+
+    /**
      * Add an airport to the airport array
      * @param a: the airport to add
      */

@@ -48,7 +48,7 @@ public final class Country {
 
     /**
      * Looks for the city with the given name and returns its code if found
-     * @param cityName: the name of the city to look for
+     * @param cityName the name of the city to look for
      * @return City object if found, null otherwise
      */
     public City getCityByName(String cityName) {
