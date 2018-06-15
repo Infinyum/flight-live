@@ -4,6 +4,8 @@ import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
@@ -44,8 +46,8 @@ public class Geometry3D {
         return line;
     }
 
-
-    public void createPlane(Group earthGroup, float latitude, float longitude, float angle) {
+    // TODO: javadoc
+    public void createPlane(Group planeGroup, float latitude, float longitude, float angle, PhongMaterial material) {
 
         // Load geometry
         ObjModelImporter planeImporter = new ObjModelImporter();
@@ -53,9 +55,13 @@ public class Geometry3D {
             URL modelUrl = getClass().getResource("/flightlive/res/Plane/plane.obj");
             planeImporter.read(modelUrl);
         } catch(ImportException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
         MeshView[] planeMeshViews = planeImporter.getImport();
+
+        for (MeshView mv : planeMeshViews) {
+            mv.setMaterial(material);
+        }
 
         //...
 
@@ -65,7 +71,7 @@ public class Geometry3D {
 
         Point3D position = geoCoordTo3dCoord(latitude, longitude);
 
-        planeScale.set3DScale(0.015);
+        planeScale.set3DScale(0.1);
         planeOffset.set3DTranslate(0, -0.01, 0);
         planeOffset.set3DRotate(0, 180 + angle, 0);
         plane.set3DTranslate(position.getX(),position.getY(),position.getZ());
@@ -73,7 +79,8 @@ public class Geometry3D {
                 -java.lang.Math.toDegrees(java.lang.Math.asin(position.getY())) - 90,
                 java.lang.Math.toDegrees(java.lang.Math.atan2(position.getX(), position.getZ())),
                 0);
-        earthGroup.getChildren().addAll(plane);
+
+        planeGroup.getChildren().addAll(plane);
     }
 
 
@@ -89,8 +96,9 @@ public class Geometry3D {
     }
 
 
-    public void displayTown(Group parent, String name, float latitude, float longitude) {
-        Sphere sphere = new Sphere(0.01);
+    public void displayTown(Group parent, String name, float latitude, float longitude, PhongMaterial material) {
+        Sphere sphere = new Sphere(0.03);
+        sphere.setMaterial(material);
         Point3D city = geoCoordTo3dCoord(latitude, longitude);
         sphere.setTranslateX(city.getX());
         sphere.setTranslateY(city.getY());

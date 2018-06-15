@@ -10,11 +10,14 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Modality;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.ResourceBundle;
 
 import static javafx.scene.SceneAntialiasing.DISABLED;
@@ -49,6 +52,10 @@ public class Controller implements Initializable {
     private FlightList currentFlightList = null;
     private Flight currentFlight = null;
 
+    private PhongMaterial planesMaterial;
+    private PhongMaterial airportsMaterial;
+    private PhongMaterial pathMaterial;
+
     // Used for 3D stuff
     Geometry3D geo3D = new Geometry3D();
 
@@ -69,6 +76,10 @@ public class Controller implements Initializable {
         Group citiesGroup = new Group();
         earthGroup.getChildren().add(citiesGroup);
 
+        planesMaterial = new PhongMaterial(cpFlight.getValue());
+        airportsMaterial = new PhongMaterial(cpAirport.getValue());
+        pathMaterial = new PhongMaterial(cpPath.getValue());
+
         initializeCountryCbx();                            // Loading the countries list in the ComboBoxes
 
         // Updating the ComboBoxes of cities according to the selected country
@@ -84,7 +95,11 @@ public class Controller implements Initializable {
         cbxFromAirport.setOnAction(event ->
                 currentAirportFrom = currentCityFrom.getAirportByName(cbxFromAirport.getValue()));
 
-        btnGo.setOnAction(event -> executeRequest()); // Executing request when button pressed
+        btnGo.setOnAction(event -> executeRequest(planesGroup, citiesGroup)); // Executing request when button pressed
+
+        cpAirport.setOnAction(event -> airportsMaterial.setDiffuseColor(cpAirport.getValue()));
+        cpFlight.setOnAction(event -> planesMaterial.setDiffuseColor(cpFlight.getValue()));
+        cpPath.setOnAction(event -> pathMaterial.setDiffuseColor(cpPath.getValue()));
 
         lvFlights.setOnMousePressed(event -> updateLabel());
     }
@@ -110,11 +125,14 @@ public class Controller implements Initializable {
     }
 
 
+    // TODO: javadoc
     /**
      * Executes the right request based on the currently selected fields (e.g. not looking
      * for an airport if no airport is selected)
+     * @param planesGroup
+     * @param citiesGroup
      */
-    private int executeRequest() {
+    private int executeRequest(Group planesGroup, Group citiesGroup) {
         // Checking for any missing information
         if (currentCountryFrom == null) {
             createDialogBox(1);
@@ -133,7 +151,7 @@ public class Controller implements Initializable {
             return -1;
         }
 
-        flightLabel.setText("");
+        flightLabel.setText(""); // Resetting the label
 
         // First case: all information provided
         if (currentAirportFrom != null && currentAirportTo != null) {
@@ -172,8 +190,36 @@ public class Controller implements Initializable {
             }
         }
 
-        updateListView();   // Updating the ListView with the list of flights
+        if (currentFlightList == null)
+            return -1;
+
+        updateListView(); // Updating the ListView with the list of flights
+        updateEarth(planesGroup, citiesGroup); // Updating the earth
         return 0;
+    }
+
+
+    // TODO: javadoc
+    /**
+     *
+     * @param planesGroup
+     * @param citiesGroup
+     */
+    private void updateEarth(Group planesGroup, Group citiesGroup) {
+        citiesGroup.getChildren().clear();
+        double latCityFrom = currentCityFrom.getAirports().get(0).getLatitude();
+        double lonCityFrom = currentCityFrom.getAirports().get(0).getLongitude();
+        geo3D.displayTown(citiesGroup, currentCityFrom.getName(),
+                (float)latCityFrom, (float)lonCityFrom, airportsMaterial);
+
+        double latCityTo = currentCityTo.getAirports().get(0).getLatitude();
+        double lonCityTo = currentCityTo.getAirports().get(0).getLongitude();
+        geo3D.displayTown(citiesGroup, currentCityTo.getName(),
+                (float)latCityTo, (float)lonCityTo, airportsMaterial);
+
+        planesGroup.getChildren().clear();
+        for (Flight f : currentFlightList.getAcList())
+            geo3D.createPlane(planesGroup, f.Lat, f.Long, f.Trak, planesMaterial);
     }
 
 
@@ -263,8 +309,18 @@ public class Controller implements Initializable {
         currentCityTo = null; currentAirportTo = null; // Resetting current values
         if (currentCountryTo != null) {
             cbxToCity.getItems().clear();   // Clearing the current list
+
+            // Sorting cities
+            ArrayList<City> cities = currentCountryTo.getCities();
+            Collections.sort(cities, new Comparator<City>() {
+                @Override
+                public int compare(City c1, City c2) {
+                    return c1.getName().compareTo(c2.getName());
+                }
+            });
+
             // Adding the new cities
-            for (City c : currentCountryTo.getCities())
+            for (City c : cities)
                 cbxToCity.getItems().add(c.getName());
         } else
             cbxToCity.getItems().clear();
@@ -280,8 +336,18 @@ public class Controller implements Initializable {
         currentCityFrom = null; currentAirportFrom = null; // Resetting current values
         if (currentCountryFrom != null) {
             cbxFromCity.getItems().clear();   // Clearing the current list
+
+            // Sorting cities
+            ArrayList<City> cities = currentCountryFrom.getCities();
+            Collections.sort(cities, new Comparator<City>() {
+                @Override
+                public int compare(City c1, City c2) {
+                    return c1.getName().compareTo(c2.getName());
+                }
+            });
+
             // Adding the new cities
-            for (City c : currentCountryFrom.getCities())
+            for (City c : cities)
                 cbxFromCity.getItems().add(c.getName());
         } else
             cbxFromCity.getItems().clear();
@@ -322,14 +388,6 @@ public class Controller implements Initializable {
         PerspectiveCamera camera = new PerspectiveCamera(true);
         new CameraManager(camera, pane, root3D);
 
-        // Add point light
-        /*PointLight light = new PointLight(Color.WHITE);
-        light.setTranslateX(-180);
-        light.setTranslateY(-90);
-        light.setTranslateZ(-120);
-        light.getScope().addAll(root3D);
-        root3D.getChildren().add(light);*/
-
         // Add ambient light
         AmbientLight ambientLight = new AmbientLight(Color.WHITE);
         ambientLight.getScope().addAll(root3D);
@@ -339,7 +397,6 @@ public class Controller implements Initializable {
         SubScene subScene = new SubScene(root3D, 500, 500, true, DISABLED);
         subScene.setCamera(camera);
         subScene.setFill(Color.rgb(248, 249, 250));
-
         pane.getChildren().add(subScene);
         return earth;
     }

@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * The main class of the modem. It contains the list of countries and therefore
@@ -36,6 +38,14 @@ public final class FlightLive {
      */
     public FlightLive() {
         countries = CSVParser.parseCSV();
+        if (countries != null) {
+            Collections.sort(countries, new Comparator<Country>() {
+                @Override
+                public int compare(Country c1, Country c2) {
+                    return c1.getName().compareTo(c2.getName());
+                }
+            });
+        }
     }
 
 
