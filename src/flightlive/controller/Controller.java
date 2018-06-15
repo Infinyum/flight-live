@@ -2,6 +2,7 @@ package flightlive.controller;
 
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+import flightlive.geometry.Geometry3D;
 import flightlive.model.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -38,6 +39,7 @@ public class Controller implements Initializable {
     @FXML private ColorPicker cpFlight;
     @FXML private ColorPicker cpPath;
 
+    // Current values are stored here
     private Country currentCountryFrom = null;
     private Country currentCountryTo = null;
     private City currentCityFrom = null;
@@ -47,6 +49,8 @@ public class Controller implements Initializable {
     private FlightList currentFlightList = null;
     private Flight currentFlight = null;
 
+    // Used for 3D stuff
+    Geometry3D geo3D = new Geometry3D();
 
     /* /////////////////////////////////////////////////////////////////////////////// */
     /* ---------------------------------- METHODS ------------------------------------ */
@@ -55,10 +59,17 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        model = new FlightLive();       // Creating the model
-        Group root3D = new Group();     // Groups the 3D objects within the pane
-        setEarth(paneEarth, root3D);    // Loading the earth
-        initializeCountryCbx();         // Loading the countries list in the ComboBoxes
+        model = new FlightLive();                          // Creating the model
+        Group root3D = new Group();                        // Groups the 3D objects within the pane
+        Group earthGroup = setEarth(paneEarth, root3D);    // Loading the earth
+        // Creating the group of planes
+        Group planesGroup = new Group();
+        earthGroup.getChildren().add(planesGroup);
+        // Creating the group of cities
+        Group citiesGroup = new Group();
+        earthGroup.getChildren().add(citiesGroup);
+
+        initializeCountryCbx();                            // Loading the countries list in the ComboBoxes
 
         // Updating the ComboBoxes of cities according to the selected country
         cbxToCountry.setOnAction(event -> updateCurrentCountryTo());
@@ -294,7 +305,7 @@ public class Controller implements Initializable {
      * @param pane the pane in which the earth is placed
      * @param root3D the group containing all the 3D
      */
-    private void setEarth(Pane pane, Group root3D) {
+    private Group setEarth(Pane pane, Group root3D) {
         // Load geometry
         ObjModelImporter objImporter = new ObjModelImporter();
         try {
@@ -330,5 +341,6 @@ public class Controller implements Initializable {
         subScene.setFill(Color.rgb(248, 249, 250));
 
         pane.getChildren().add(subScene);
+        return earth;
     }
 }
