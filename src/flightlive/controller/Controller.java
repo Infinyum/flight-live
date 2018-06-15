@@ -38,7 +38,8 @@ public class Controller implements Initializable {
     @FXML private Label flightLabel;
     @FXML private Button btnGo;
     @FXML private Pane paneEarth;
-    @FXML private ColorPicker cpAirport;
+    @FXML private ColorPicker cpDepAirport;
+    @FXML private ColorPicker cpArrAirport;
     @FXML private ColorPicker cpFlight;
     @FXML private ColorPicker cpPath;
 
@@ -53,7 +54,8 @@ public class Controller implements Initializable {
     private Flight currentFlight = null;
 
     private PhongMaterial planesMaterial;
-    private PhongMaterial airportsMaterial;
+    private PhongMaterial airportsDepMaterial;
+    private PhongMaterial airportsArrMaterial;
     private PhongMaterial pathMaterial;
 
     // Used for 3D stuff
@@ -77,7 +79,8 @@ public class Controller implements Initializable {
         earthGroup.getChildren().add(citiesGroup);
 
         planesMaterial = new PhongMaterial(cpFlight.getValue());
-        airportsMaterial = new PhongMaterial(cpAirport.getValue());
+        airportsDepMaterial = new PhongMaterial(cpDepAirport.getValue());
+        airportsArrMaterial = new PhongMaterial(cpArrAirport.getValue());
         pathMaterial = new PhongMaterial(cpPath.getValue());
 
         initializeCountryCbx();                            // Loading the countries list in the ComboBoxes
@@ -90,14 +93,23 @@ public class Controller implements Initializable {
         cbxFromCity.setOnAction(event -> updateCurrentCityFrom());
 
         // Updating the current airports
-        cbxToAirport.setOnAction(event ->
-                currentAirportTo = currentCityTo.getAirportByName(cbxToAirport.getValue()));
-        cbxFromAirport.setOnAction(event ->
-                currentAirportFrom = currentCityFrom.getAirportByName(cbxFromAirport.getValue()));
+        cbxToAirport.setOnAction(event -> {
+            if (currentCityTo != null)
+                currentAirportTo = currentCityTo.getAirportByName(cbxToAirport.getValue());
+            else
+                currentAirportTo = null;
+        });
+        cbxFromAirport.setOnAction(event -> {
+            if (currentCityFrom != null)
+                currentAirportFrom = currentCityFrom.getAirportByName(cbxFromAirport.getValue());
+            else
+                currentAirportFrom = null;
+        });
 
         btnGo.setOnAction(event -> executeRequest(planesGroup, citiesGroup)); // Executing request when button pressed
 
-        cpAirport.setOnAction(event -> airportsMaterial.setDiffuseColor(cpAirport.getValue()));
+        cpDepAirport.setOnAction(event -> airportsDepMaterial.setDiffuseColor(cpDepAirport.getValue()));
+        cpArrAirport.setOnAction(event -> airportsArrMaterial.setDiffuseColor(cpArrAirport.getValue()));
         cpFlight.setOnAction(event -> planesMaterial.setDiffuseColor(cpFlight.getValue()));
         cpPath.setOnAction(event -> pathMaterial.setDiffuseColor(cpPath.getValue()));
 
@@ -142,51 +154,84 @@ public class Controller implements Initializable {
             createDialogBox(2);
             return -1;
         }
-        else if (currentCityFrom == null) {
+        else if (currentCityFrom == null && currentCityTo == null) {
             createDialogBox(3);
-            return -1;
-        }
-        else if (currentCityTo == null) {
-            createDialogBox(4);
             return -1;
         }
 
         flightLabel.setText(""); // Resetting the label
 
-        // First case: all information provided
-        if (currentAirportFrom != null && currentAirportTo != null) {
-            try {
-                currentFlightList = model.getFlightsBetweenAirports(currentAirportFrom.getName(), currentAirportTo.getName());
-            } catch (Exception e) {
-                currentFlightList = null;
-                return -1;
+        // If both cities are given
+        if (currentCityFrom != null && currentCityTo != null) {
+            // First case: all information provided
+            if (currentAirportFrom != null && currentAirportTo != null) {
+                try {
+                    currentFlightList = model.getFlightsBetweenAirports(currentAirportFrom.getName(), currentAirportTo.getName());
+                } catch (Exception e) {
+                    currentFlightList = null;
+                    return -1;
+                }
             }
-        }
-        // Second case: only the cities are specified
-        if (currentAirportFrom == null && currentAirportTo == null) {
-            try {
-                currentFlightList = model.getFlightsCities(currentCityFrom.getName(), currentCityTo.getName());
-            } catch (Exception e) {
-                currentFlightList = null;
-                return -1;
+            // Second case: only the cities are specified
+            if (currentAirportFrom == null && currentAirportTo == null) {
+                try {
+                    currentFlightList = model.getFlightsCities(currentCityFrom.getName(), currentCityTo.getName());
+                } catch (Exception e) {
+                    currentFlightList = null;
+                    return -1;
+                }
             }
-        }
-        // Third case: the departure airport is given but not the arrival one
-        if (currentAirportFrom != null && currentAirportTo == null) {
-            try {
-                currentFlightList = model.getFlightsFromAirportToCity(currentAirportFrom.getName(), currentCityTo.getName());
-            } catch (Exception e) {
-                currentFlightList = null;
-                return -1;
+            // Third case: the departure airport is given but not the arrival one
+            if (currentAirportFrom != null && currentAirportTo == null) {
+                try {
+                    currentFlightList = model.getFlightsFromAirportToCity(currentAirportFrom.getName(), currentCityTo.getName());
+                } catch (Exception e) {
+                    currentFlightList = null;
+                    return -1;
+                }
             }
-        }
-        // Fourth case: the arrival airport is given but not the departure one
-        if (currentAirportFrom == null && currentAirportTo != null) {
-            try {
-                currentFlightList = model.getFlightsFromCityToAirport(currentCityFrom.getName(), currentAirportTo.getName());
-            } catch (Exception e) {
-                currentFlightList = null;
-                return -1;
+            // Fourth case: the arrival airport is given but not the departure one
+            if (currentAirportFrom == null && currentAirportTo != null) {
+                try {
+                    currentFlightList = model.getFlightsFromCityToAirport(currentCityFrom.getName(), currentAirportTo.getName());
+                } catch (Exception e) {
+                    currentFlightList = null;
+                    return -1;
+                }
+            }
+        // Only the destination city is given
+        } else if (currentCityFrom == null && currentCityTo != null) {
+            if (currentAirportTo == null) {
+                try {
+                    currentFlightList = model.getFlightsCityTo(currentCityTo.getName());
+                } catch (Exception e) {
+                    currentFlightList = null;
+                    return -1;
+                }
+            } else {
+                try {
+                    currentFlightList = model.getFlightsAirportTo(currentAirportTo.getName());
+                } catch (Exception e) {
+                    currentFlightList = null;
+                    return -1;
+                }
+            }
+        // Only the departure city is given
+        } else if (currentCityFrom != null && currentCityTo == null) {
+            if (currentAirportFrom == null) {
+                try {
+                    currentFlightList = model.getFlightsCityFrom(currentCityFrom.getName());
+                } catch (Exception e) {
+                    currentFlightList = null;
+                    return -1;
+                }
+            } else {
+                try {
+                    currentFlightList = model.getFlightsAirportFrom(currentAirportFrom.getName());
+                } catch (Exception e) {
+                    currentFlightList = null;
+                    return -1;
+                }
             }
         }
 
@@ -207,15 +252,47 @@ public class Controller implements Initializable {
      */
     private void updateEarth(Group planesGroup, Group citiesGroup) {
         citiesGroup.getChildren().clear();
-        double latCityFrom = currentCityFrom.getAirports().get(0).getLatitude();
-        double lonCityFrom = currentCityFrom.getAirports().get(0).getLongitude();
-        geo3D.displayTown(citiesGroup, currentCityFrom.getName(),
-                (float)latCityFrom, (float)lonCityFrom, airportsMaterial);
-
-        double latCityTo = currentCityTo.getAirports().get(0).getLatitude();
-        double lonCityTo = currentCityTo.getAirports().get(0).getLongitude();
-        geo3D.displayTown(citiesGroup, currentCityTo.getName(),
-                (float)latCityTo, (float)lonCityTo, airportsMaterial);
+        // If the current departure city is given
+        if (currentCityFrom != null) {
+            double latCityFrom = currentCityFrom.getAirports().get(0).getLatitude();
+            double lonCityFrom = currentCityFrom.getAirports().get(0).getLongitude();
+            geo3D.displayTown(citiesGroup, currentCityFrom.getName(),
+                    (float)latCityFrom, (float)lonCityFrom, airportsDepMaterial);
+        // If not
+        } else {
+            ArrayList<String> icaos = new ArrayList<>();
+            for (Flight f : currentFlightList.getAcList()) {
+                String temp = f.From.substring(0,4);
+                if (!icaos.contains(temp)) icaos.add(temp);
+            }
+            for (String icao : icaos) {
+                Airport temp = model.getAirportByIcao(icao);
+                if (temp != null) {
+                    geo3D.displayTown(citiesGroup, temp.getName(), (float)temp.getLatitude(),
+                            (float)temp.getLongitude(), airportsDepMaterial);
+                }
+            }
+        }
+        // If the current arrival city is given
+        if (currentCityTo != null) {
+            double latCityTo = currentCityTo.getAirports().get(0).getLatitude();
+            double lonCityTo = currentCityTo.getAirports().get(0).getLongitude();
+            geo3D.displayTown(citiesGroup, currentCityTo.getName(),
+                    (float)latCityTo, (float)lonCityTo, airportsArrMaterial);
+        } else {
+            ArrayList<String> icaos = new ArrayList<>();
+            for (Flight f : currentFlightList.getAcList()) {
+                String temp = f.To.substring(0,4);
+                if (!icaos.contains(temp)) icaos.add(temp);
+            }
+            for (String icao : icaos) {
+                Airport temp = model.getAirportByIcao(icao);
+                if (temp != null) {
+                    geo3D.displayTown(citiesGroup, temp.getName(), (float)temp.getLatitude(),
+                            (float)temp.getLongitude(), airportsArrMaterial);
+                }
+            }
+        }
 
         planesGroup.getChildren().clear();
         for (Flight f : currentFlightList.getAcList())
@@ -229,8 +306,24 @@ public class Controller implements Initializable {
     private void updateListView() {
         if (currentFlightList != null) {
             lvFlights.getItems().clear();
-            for (Flight f : currentFlightList.getAcList())
-                lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), currentCityTo.getName()));
+            for (Flight f : currentFlightList.getAcList()) {
+                if (currentCityFrom != null && currentCityTo != null) {
+                    lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), currentCityTo.getName()));
+                } else if (currentCityFrom == null && currentCityTo != null) {
+                    Airport temp = model.getAirportByIcao(f.From.substring(0,4));
+                    String departureCity;
+                    if (temp == null) departureCity = "city not found";
+                    else departureCity = temp.getCity().getName();
+
+                    lvFlights.getItems().add(f.toStringShort(departureCity, currentCityTo.getName()));
+                } else if (currentCityFrom != null && currentCityTo == null) {
+                    Airport temp = model.getAirportByIcao(f.To.substring(0,4));
+                    String arrivalCity;
+                    if (temp == null) arrivalCity = "city not found";
+                    else arrivalCity = temp.getCity().getName();
+                    lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), arrivalCity));
+                }
+            }
         } else
             lvFlights.getItems().clear();
     }
@@ -255,11 +348,7 @@ public class Controller implements Initializable {
                 alert.showAndWait();
                 break;
             case 3:
-                alert.setContentText("Please specify a city of departure");
-                alert.showAndWait();
-                break;
-            case 4:
-                alert.setContentText("Please specify a city of arrival");
+                alert.setContentText("Please specify at least one city");
                 alert.showAndWait();
                 break;
             default:

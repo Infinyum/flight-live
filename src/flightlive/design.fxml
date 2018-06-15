@@ -17,25 +17,30 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="700.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="flightlive.controller.Controller">
+<AnchorPane id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="700.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="flightlive.controller.Controller">
    <children>
       <MenuBar prefHeight="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu mnemonicParsing="false" text="Settings">
                <items>
-                  <MenuItem mnemonicParsing="false" text="Airport Color">
+                  <MenuItem mnemonicParsing="false" text="Departure airport color">
                      <graphic>
-                        <ColorPicker fx:id="cpAirport"/>
+                        <ColorPicker fx:id="cpDepAirport" />
                      </graphic>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Flight Color">
+                  <MenuItem mnemonicParsing="false" text="Arrival airport color">
                      <graphic>
-                        <ColorPicker fx:id="cpFlight"/>
+                        <ColorPicker fx:id="cpArrAirport" />
                      </graphic>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Path Color">
+                  <MenuItem mnemonicParsing="false" text="Flight color">
                      <graphic>
-                        <ColorPicker fx:id="cpPath"/>
+                        <ColorPicker fx:id="cpFlight" />
+                     </graphic>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" text="Path color">
+                     <graphic>
+                        <ColorPicker fx:id="cpPath" />
                      </graphic>
                   </MenuItem>
                </items></Menu>

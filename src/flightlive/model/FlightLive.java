@@ -94,6 +94,24 @@ public final class FlightLive {
 
 
     /**
+     * Looks for the airport with the given icao and returns the object if found
+     * @param icao: the icao of the airport to look for
+     * @return the Airport object if found, null otherwise
+     */
+    public Airport getAirportByIcao(String icao) {
+        for (Country c : countries) {
+            for (City ci : c.getCities()) {
+                for (Airport a : ci.getAirports()) {
+                    if (a.getIcao().equals(icao))
+                        return a;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
      * Looks for the city with the given name and returns its code if found
      * @param n: the name of the city to look for
      * @return the City object if found, null otherwise

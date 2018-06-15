@@ -55,6 +55,13 @@ public final class Airport {
 
 
     /**
+     * Getter for the city attribute
+     * @return this city object in which this airport is located
+     */
+    public City getCity() { return city; }
+
+
+    /**
      * Getter for the icao attribute
      * @return the icao code of this airport
      */
