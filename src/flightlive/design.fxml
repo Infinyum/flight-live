@@ -88,6 +88,6 @@
             <Pane fx:id="paneEarth" prefHeight="500.0" prefWidth="500.0" />
          </children>
       </HBox>
-      <Label prefHeight="110.0" text="Label" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+      <Label fx:id="flightLabel" prefHeight="110.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
    </children>
 </AnchorPane>

@@ -57,7 +57,7 @@ public final class Flight {
      */
     @Override
     public String toString() {
-        return "FLIGHT'S ID: " + Id + "\nFROM: " + From + "\nTO: " + To + "\nAIRCRAFT TYPE: "
+        return "FLIGHT'S ID: " + Id + "\nFROM: " + From + "\tTO: " + To + "\nAIRCRAFT TYPE: "
                 + Type + ", MILITARY: " + (Mil ? "yes" : "no") + "\nSPEED: " + Spd
                 + ", ALTITUDE: " + Alt;
     }
@@ -70,8 +70,8 @@ public final class Flight {
      * @return the string containing this information
      */
     public String toStringShort(String departureCity, String arrivalCity) {
-        return "ID: " + Id + "\tAIRLINE: " + Op + "\nFROM: " + departureCity
-                + "\tTO: " + arrivalCity;
+        return "ID: " + Id + "  AIRLINE: " + Op + "\nFROM: " + departureCity
+                + "  TO: " + arrivalCity;
     }
 
 

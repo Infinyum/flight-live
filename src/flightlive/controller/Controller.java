@@ -6,10 +6,7 @@ import flightlive.model.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.*;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
@@ -33,8 +30,9 @@ public class Controller implements Initializable {
     @FXML private ComboBox<String> cbxToCountry;
     @FXML private ComboBox<String> cbxToCity;
     @FXML private ComboBox<String> cbxToAirport;
-    @FXML private Button btnGo;
     @FXML private ListView lvFlights;
+    @FXML private Label flightLabel;
+    @FXML private Button btnGo;
     @FXML private Pane paneEarth;
 
     private Country currentCountryFrom = null;
@@ -44,6 +42,7 @@ public class Controller implements Initializable {
     private Airport currentAirportFrom = null;
     private Airport currentAirportTo = null;
     private FlightList currentFlightList = null;
+    private Flight currentFlight = null;
 
 
     /* /////////////////////////////////////////////////////////////////////////////// */
@@ -72,6 +71,28 @@ public class Controller implements Initializable {
                 currentAirportFrom = currentCityFrom.getAirportByName(cbxFromAirport.getValue()));
 
         btnGo.setOnAction(event -> executeRequest()); // Executing request when button pressed
+
+        lvFlights.setOnMousePressed(event -> updateLabel());
+    }
+
+
+    /**
+     * Updates the label with information about the currently selected flight
+     */
+    private void updateLabel() {
+        // Retrieving the selected item
+        String selectedItem = lvFlights.getSelectionModel().getSelectedItems().toString();
+
+        // If it's not an empty item (i.e. '[]')
+        if (selectedItem.length() > 2) {
+            int selectedFlightId = Integer.parseInt(selectedItem.split(" ")[1]);
+            currentFlight = currentFlightList.getFlightById(selectedFlightId);
+            if (currentFlight != null) {
+                flightLabel.setText(currentFlight.toString());
+            } else
+                flightLabel.setText("");
+        } else
+            flightLabel.setText("");
     }
 
 
@@ -107,11 +128,43 @@ public class Controller implements Initializable {
                 return -1;
             }
         }
+        // Second case: only the cities are specified
+        if (currentAirportFrom == null && currentAirportTo == null) {
+            try {
+                currentFlightList = model.getFlightsCities(currentCityFrom.getName(), currentCityTo.getName());
+            } catch (Exception e) {
+                currentFlightList = null;
+                return -1;
+            }
+        }
+        // Third case: the departure airport is given but not the arrival one
+        if (currentAirportFrom != null && currentAirportTo == null) {
+            try {
+
+            } catch (Exception e) {
+                currentFlightList = null;
+                return -1;
+            }
+        }
+        // Fourth case: the arrival airport is given but not the departure one
+        if (currentAirportFrom == null && currentAirportTo != null) {
+            try {
+
+            } catch (Exception e) {
+                currentFlightList = null;
+                return -1;
+            }
+        }
+
+
         updateListView();   // Updating the ListView with the list of flights
         return 0;
     }
 
 
+    /**
+     * Updates the ListView with all the flights found by the request
+     */
     private void updateListView() {
         if (currentFlightList != null) {
             lvFlights.getItems().clear();

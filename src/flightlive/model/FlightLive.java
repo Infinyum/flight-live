@@ -335,10 +335,7 @@ public final class FlightLive {
         FlightList tmp;
 
         for (Airport a1 : city1.getAirports()) {
-            System.err.println("From: " + a1.getName());
-
             for (Airport a2 : city2.getAirports()) {
-                System.err.println("To: " + a2.getName());
                 tmp = getFlightsBetweenAirports(a1.getName(), a2.getName());
                 if (tmp != null)
                     res_fl.addAll(Arrays.asList(tmp.getAcList()));

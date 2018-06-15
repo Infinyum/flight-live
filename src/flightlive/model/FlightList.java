@@ -45,6 +45,20 @@ public final class FlightList {
     public void setLastDv(String lastDv) { this.lastDv = lastDv; }
 
 
+    /**
+     * Looks for the flight with the given id in this FlightList object
+     * @param id the id of the flight
+     * @return Flight object if found, null otherwise
+     */
+    public Flight getFlightById(int id) {
+        for (Flight f : acList) {
+            if (f.Id == id)
+                return f;
+        }
+        return null;
+    }
+
+
     // Override ----------------------------------------------
 
     /**
