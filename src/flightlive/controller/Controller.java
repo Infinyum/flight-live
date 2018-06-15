@@ -34,6 +34,9 @@ public class Controller implements Initializable {
     @FXML private Label flightLabel;
     @FXML private Button btnGo;
     @FXML private Pane paneEarth;
+    @FXML private ColorPicker cpAirport;
+    @FXML private ColorPicker cpFlight;
+    @FXML private ColorPicker cpPath;
 
     private Country currentCountryFrom = null;
     private Country currentCountryTo = null;
