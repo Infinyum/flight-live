@@ -119,6 +119,8 @@ public class Controller implements Initializable {
             return -1;
         }
 
+        flightLabel.setText("");
+
         // First case: all information provided
         if (currentAirportFrom != null && currentAirportTo != null) {
             try {
@@ -140,7 +142,7 @@ public class Controller implements Initializable {
         // Third case: the departure airport is given but not the arrival one
         if (currentAirportFrom != null && currentAirportTo == null) {
             try {
-
+                currentFlightList = model.getFlightsFromAirportToCity(currentAirportFrom.getName(), currentCityTo.getName());
             } catch (Exception e) {
                 currentFlightList = null;
                 return -1;
@@ -149,13 +151,12 @@ public class Controller implements Initializable {
         // Fourth case: the arrival airport is given but not the departure one
         if (currentAirportFrom == null && currentAirportTo != null) {
             try {
-
+                currentFlightList = model.getFlightsFromCityToAirport(currentCityFrom.getName(), currentAirportTo.getName());
             } catch (Exception e) {
                 currentFlightList = null;
                 return -1;
             }
         }
-
 
         updateListView();   // Updating the ListView with the list of flights
         return 0;

@@ -158,10 +158,8 @@ public final class FlightLive {
      */
     public FlightList getFlightsAirportTo(String airport_name) throws Exception {
         String airport_icao = getAirportIcao(airport_name); // Getting the airport's ICAO
-        if (airport_icao == null) {
-            System.err.println("ERROR:" + airport_name + "'s ICAO not found");
+        if (airport_icao == null)
             return null;
-        }
         // Making the request
         FlightList flights = getFlightsAirport(airport_icao);
         if (flights == null)
@@ -174,10 +172,8 @@ public final class FlightLive {
             if (flights.getAcList()[i].To.split(" ")[0].equals(airport_icao))
                 res_fl.add(flights.getAcList()[i]);
         }
-        if (res_fl.size() == 0) {
-            System.err.println("No flight to this destination");
+        if (res_fl.size() == 0)
             return null;
-        }
 
         // Setting up res
         FlightList res = new FlightList();
@@ -195,10 +191,8 @@ public final class FlightLive {
      */
     public FlightList getFlightsAirportFrom(String airport_name) throws Exception {
         String airport_icao = getAirportIcao(airport_name); // Getting the airport's ICAO
-        if (airport_icao == null) {
-            System.err.println("ERROR:" + airport_name + "'s ICAO not found");
+        if (airport_icao == null)
             return null;
-        }
         // Making the request
         FlightList flights = getFlightsAirport(airport_icao);
         if (flights == null)
@@ -211,10 +205,8 @@ public final class FlightLive {
             if (flights.getAcList()[i].From.split(" ")[0].equals(airport_icao))
                 res_fl.add(flights.getAcList()[i]);
         }
-        if (res_fl.size() == 0) {
-            System.err.println("No flight from this destination");
+        if (res_fl.size() == 0)
             return null;
-        }
 
         // Setting up res
         FlightList res = new FlightList();
@@ -233,27 +225,25 @@ public final class FlightLive {
      */
     public FlightList getFlightsBetweenAirports(String airport_dep, String airport_arr) throws Exception {
         FlightList from_airport = getFlightsAirportFrom(airport_dep);
-        FlightList to_airport = getFlightsAirportTo(airport_arr);
-        // No object was created
-        if (from_airport == null || to_airport == null)
+        String arr_airport_icao = getAirportIcao(airport_arr);
+
+        if (from_airport == null)
             return null;
-        // No flight was found
-        if (from_airport.getAcList().length == 0 || to_airport.getAcList().length == 0)
+        if (from_airport.getAcList().length == 0)
             return null;
 
-        ArrayList<Flight> departures_list = new ArrayList<>(Arrays.asList(from_airport.getAcList()));
-        ArrayList<Flight> arrivals_list = new ArrayList<>(Arrays.asList(to_airport.getAcList()));
-        ArrayList<Flight> resulting_array = new ArrayList<>();
+        FlightList res = new FlightList();
+        ArrayList<Flight> res_fl = new ArrayList<>();
 
-        // Adding the relevant flights to the resulting array
-        for (Flight f : departures_list) {
-            if (arrivals_list.contains(f)) resulting_array.add(f);
+        for (Flight f : from_airport.getAcList()) {
+            if (f.To.length() >= 4) {
+                // If this flight goes to the destination airport
+                if (f.To.substring(0,4).equals(arr_airport_icao))
+                    res_fl.add(f);
+            }
         }
 
-        // Setting up res
-        FlightList res = new FlightList();
-        res.setAcList(resulting_array.stream().toArray(Flight[]::new));
-        res.setLastDv(from_airport.getLastDv());
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
         return res;
     }
 
@@ -327,18 +317,28 @@ public final class FlightLive {
         // Research of the cities
         City city1 = getCity(city1_name);
         City city2 = getCity(city2_name);
-        if(city1 == null || city2 == null)
+        if (city1 == null || city2 == null)
             return null;
+
+        // Getting the list of airports' icaos in this city
+        ArrayList<String> dest_icaos = new ArrayList<>();
+        for (Airport a : city2.getAirports())
+            dest_icaos.add(a.getIcao());
 
         // Search flight between these 2 cities
         ArrayList<Flight> res_fl = new ArrayList<>();
         FlightList tmp;
 
-        for (Airport a1 : city1.getAirports()) {
-            for (Airport a2 : city2.getAirports()) {
-                tmp = getFlightsBetweenAirports(a1.getName(), a2.getName());
-                if (tmp != null)
-                    res_fl.addAll(Arrays.asList(tmp.getAcList()));
+        for (Airport a : city1.getAirports()) {
+            tmp = getFlightsAirportFrom(a.getName());
+            if (tmp != null) {
+                for (Flight f : tmp.getAcList()) {  // For each flight coming from this airport
+                    if (f.To.length() >= 4) {
+                        // If this flight goes to one of the airports in the destination city
+                        if (dest_icaos.contains(f.To.substring(0,4)))
+                            res_fl.add(f);
+                    }
+                }
             }
         }
 
@@ -346,6 +346,71 @@ public final class FlightLive {
         res.setAcList(res_fl.stream().toArray(Flight[]::new));
         return res;
     }
+
+
+    /**
+     * Get flights coming from a given city and going to the specified airport
+     * @param cityName the departure city
+     * @param airportName the arrival airport
+     * @return FlightList object which contains corresponding flights
+     * @throws Exception
+     */
+    public FlightList getFlightsFromCityToAirport(String cityName, String airportName) throws Exception {
+        FlightList flightsFromCity = getFlightsCityFrom(cityName);
+        String airportIcao = getAirportIcao(airportName);
+        if (flightsFromCity == null)
+            return null;
+
+        if (flightsFromCity.getAcList().length == 0)
+            return null;
+
+        FlightList res = new FlightList();
+        ArrayList<Flight> res_fl = new ArrayList<>();
+
+        for (Flight f : flightsFromCity.getAcList()) {
+            if (f.To.length() >= 4) {
+                if (f.To.substring(0,4).equals(airportIcao))
+                    res_fl.add(f);
+            }
+        }
+
+        // Setting up our result
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+        return res;
+    }
+
+
+    /**
+     * Get flights coming from a given airport and going to the specified city
+     * @param airportName the departure airport
+     * @param cityName the arrival city
+     * @return FlightList object which contains corresponding flights
+     * @throws Exception
+     */
+    public FlightList getFlightsFromAirportToCity(String airportName, String cityName) throws Exception {
+        FlightList flightsToCity = getFlightsCityTo(cityName);
+        String airportIcao = getAirportIcao(airportName);
+        if (flightsToCity == null)
+            return null;
+
+        if (flightsToCity.getAcList().length == 0)
+            return null;
+
+        FlightList res = new FlightList();
+        ArrayList<Flight> res_fl = new ArrayList<>();
+
+        for (Flight f : flightsToCity.getAcList()) {
+            if (f.From.length() >= 4) {
+                if (f.From.substring(0,4).equals(airportIcao))
+                    res_fl.add(f);
+            }
+        }
+
+        // Setting up our result
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+        return res;
+    }
+
 
     /**
      * Displays the position history of the given flight
