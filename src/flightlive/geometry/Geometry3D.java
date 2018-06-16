@@ -122,9 +122,9 @@ public class Geometry3D {
                 // Create one point of the path with an old position
                 if ((i + 1) % 4 == 0) {
                     sphere = new Sphere(0.01);
-                    if (posHistory[i] < 300)
+                    if (posHistory[i] < 400)
                         sphere.setMaterial(materialL);
-                    else if (posHistory[i] < 500)
+                    else if (posHistory[i] < 600)
                         sphere.setMaterial(materialM);
                     else
                         sphere.setMaterial(materialH);

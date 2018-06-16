@@ -94,8 +94,8 @@ public class Controller implements Initializable {
         airportsDepMaterial = new PhongMaterial(cpDepAirport.getValue());
         airportsArrMaterial = new PhongMaterial(cpArrAirport.getValue());
         pathMaterialHigh = new PhongMaterial(cpPath.getValue());
-        pathMaterialMedium = new PhongMaterial(pathMaterialHigh.getDiffuseColor().deriveColor(2, 1, 1, 1));
-        pathMaterialLow = new PhongMaterial(pathMaterialMedium.getDiffuseColor().deriveColor(2, 1, 1, 1));
+        pathMaterialMedium = new PhongMaterial(pathMaterialHigh.getDiffuseColor().deriveColor(20, 1, 1, 1));
+        pathMaterialLow = new PhongMaterial(pathMaterialMedium.getDiffuseColor().deriveColor(20, 1, 1, 1));
 
         initializeCountryCbx(); // Loading the countries list in the ComboBoxes
 
@@ -130,8 +130,8 @@ public class Controller implements Initializable {
         cpFlight.setOnAction(event -> planesMaterial.setDiffuseColor(cpFlight.getValue()));
         cpPath.setOnAction(event -> {
             pathMaterialHigh.setDiffuseColor(cpPath.getValue());
-            pathMaterialMedium.setDiffuseColor(pathMaterialHigh.getDiffuseColor().deriveColor(2, 1, 1 , 1));
-            pathMaterialLow.setDiffuseColor(pathMaterialMedium.getDiffuseColor().deriveColor(2, 1, 1 , 1));
+            pathMaterialMedium.setDiffuseColor(pathMaterialHigh.getDiffuseColor().deriveColor(20, 1, 1 , 1));
+            pathMaterialLow.setDiffuseColor(pathMaterialMedium.getDiffuseColor().deriveColor(20, 1, 1 , 1));
         });
 
         // When clicking on the list of flights
