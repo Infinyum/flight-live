@@ -144,7 +144,7 @@ public final class FlightLive {
         AsyncHttpClient client = Dsl.asyncHttpClient(clientBuilder);
 
         // Create request GET
-        BoundRequestBuilder getRequest = client.prepareGet("https://public-api.adsbexchange.com/VirtualRadar/AircraftList.json?" + filters);
+        BoundRequestBuilder getRequest = client.prepareGet("https://public-api.adsbexchange.com/VirtualRadar/AircraftList.json?" + filters + "&trFmt=fs");
 
         // Executes and retrieves the result
         flights = getRequest.execute(new AsyncCompletionHandler<FlightList>() {
@@ -569,7 +569,6 @@ public final class FlightLive {
             }
         }
     }
-
 
     /**
      * Get all the flights within a given radius around a given position

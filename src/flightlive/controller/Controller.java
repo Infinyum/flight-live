@@ -17,10 +17,7 @@ import javafx.scene.shape.MeshView;
 import javafx.stage.Modality;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static javafx.scene.SceneAntialiasing.DISABLED;
 
@@ -60,10 +57,13 @@ public class Controller implements Initializable {
     private PhongMaterial planesMaterial;
     private PhongMaterial airportsDepMaterial;
     private PhongMaterial airportsArrMaterial;
-    private PhongMaterial pathMaterial;
+    private PhongMaterial pathMaterialLow;
+    private PhongMaterial pathMaterialMedium;
+    private PhongMaterial pathMaterialHigh;
 
     // Used for 3D stuff
     Geometry3D geo3D = new Geometry3D();
+
 
     /* /////////////////////////////////////////////////////////////////////////////// */
     /* ---------------------------------- METHODS ------------------------------------ */
@@ -81,12 +81,21 @@ public class Controller implements Initializable {
         // Creating the group of cities
         Group citiesGroup = new Group();
         earthGroup.getChildren().add(citiesGroup);
+        // Creating the group for the path
+        Group pathGroup = new Group();
+        earthGroup.getChildren().add(pathGroup);
 
         // Setting the materials for the planes, path and cities
+        cpFlight.setValue(Color.RED);
+        cpDepAirport.setValue(Color.YELLOW);
+        cpArrAirport.setValue(Color.GREEN);
+        cpPath.setValue(Color.ORANGE);
         planesMaterial = new PhongMaterial(cpFlight.getValue());
         airportsDepMaterial = new PhongMaterial(cpDepAirport.getValue());
         airportsArrMaterial = new PhongMaterial(cpArrAirport.getValue());
-        pathMaterial = new PhongMaterial(cpPath.getValue());
+        pathMaterialHigh = new PhongMaterial(cpPath.getValue());
+        pathMaterialMedium = new PhongMaterial(pathMaterialHigh.getDiffuseColor().deriveColor(2, 1, 1, 1));
+        pathMaterialLow = new PhongMaterial(pathMaterialMedium.getDiffuseColor().deriveColor(2, 1, 1, 1));
 
         initializeCountryCbx(); // Loading the countries list in the ComboBoxes
 
@@ -113,16 +122,20 @@ public class Controller implements Initializable {
 
         // When clicking on a button
         btnGo.setOnAction(event -> executeRequest(planesGroup, citiesGroup));
-        btnClear.setOnAction(event -> clear(planesGroup, citiesGroup));
+        btnClear.setOnAction(event -> clear(planesGroup, citiesGroup, pathGroup));
 
         // When changing the color
         cpDepAirport.setOnAction(event -> airportsDepMaterial.setDiffuseColor(cpDepAirport.getValue()));
         cpArrAirport.setOnAction(event -> airportsArrMaterial.setDiffuseColor(cpArrAirport.getValue()));
         cpFlight.setOnAction(event -> planesMaterial.setDiffuseColor(cpFlight.getValue()));
-        cpPath.setOnAction(event -> pathMaterial.setDiffuseColor(cpPath.getValue()));
+        cpPath.setOnAction(event -> {
+            pathMaterialHigh.setDiffuseColor(cpPath.getValue());
+            pathMaterialMedium.setDiffuseColor(pathMaterialHigh.getDiffuseColor().deriveColor(2, 1, 1 , 1));
+            pathMaterialLow.setDiffuseColor(pathMaterialMedium.getDiffuseColor().deriveColor(2, 1, 1 , 1));
+        });
 
         // When clicking on the list of flights
-        lvFlights.setOnMousePressed(event -> updateLabelAndGlobe(planesGroup));
+        lvFlights.setOnMousePressed(event -> updateLabelAndGlobe(planesGroup, pathGroup));
 
         // Picking the plane
         planesGroup.setOnMousePressed(event -> {
@@ -139,7 +152,7 @@ public class Controller implements Initializable {
                     // Updating the label
                     flightLabel.setText(currentFlight.toString());
                     // Showing the path and making the plane bigger
-                    geo3D.displayPath(currentFlight, currentPlane);
+                    geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialMedium, pathMaterialHigh);
                     updateListViewSelection();
                 }
             }
@@ -170,7 +183,7 @@ public class Controller implements Initializable {
      * @param planesGroup the group of planes
      * @param citiesGroup the group of cities
      */
-    private void clear(Group planesGroup, Group citiesGroup) {
+    private void clear(Group planesGroup, Group citiesGroup, Group pathGroup) {
         cbxToAirport.getSelectionModel().clearSelection();
         cbxToAirport.getItems().clear();
 
@@ -202,6 +215,7 @@ public class Controller implements Initializable {
         flightLabel.setText("");
         citiesGroup.getChildren().clear();
         planesGroup.getChildren().clear();
+        pathGroup.getChildren().clear();
     }
 
 
@@ -210,7 +224,7 @@ public class Controller implements Initializable {
      * with the currently selected plane
      * @param planesGroup the group of planes
      */
-    private void updateLabelAndGlobe(Group planesGroup) {
+    private void updateLabelAndGlobe(Group planesGroup, Group pathGroup) {
         // Retrieving the selected item
         String selectedItem = lvFlights.getSelectionModel().getSelectedItems().toString();
 
@@ -236,7 +250,7 @@ public class Controller implements Initializable {
                 }
             }
 
-            geo3D.displayPath(currentFlight, currentPlane);
+            geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialMedium, pathMaterialHigh);
 
         } else
             flightLabel.setText("");
@@ -251,7 +265,7 @@ public class Controller implements Initializable {
      */
     private int executeRequest(Group planesGroup, Group citiesGroup) {
 
-        // Not enough informtion given
+        // Not enough information given
         if (currentCityFrom == null && currentCityTo == null) {
             createDialogBox();
             return -1;

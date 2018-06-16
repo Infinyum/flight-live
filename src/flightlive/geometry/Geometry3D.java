@@ -5,7 +5,6 @@ import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 import flightlive.model.Flight;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
@@ -107,7 +106,40 @@ public class Geometry3D {
     }
 
 
-    public void displayPath(Flight flight, Fx3DGroup plane) {
+    public void displayPath(Flight flight, Fx3DGroup plane, Group pathGroup, PhongMaterial materialL, PhongMaterial materialM, PhongMaterial materialH) {
+        Sphere sphere;
+        Point3D posSphere;
+        double lat = 0, lon = 0;
+
+        // Change size of the plane object
         plane.set3DScale(2.0);
+
+        // Create the path
+        pathGroup.getChildren().clear();
+        double[] posHistory = flight.getCot();
+        if(posHistory != null) {
+            for (int i = 0; i < posHistory.length; i++) {
+                // Create one point of the path with an old position
+                if ((i + 1) % 4 == 0) {
+                    sphere = new Sphere(0.01);
+                    if (posHistory[i] < 300)
+                        sphere.setMaterial(materialL);
+                    else if (posHistory[i] < 500)
+                        sphere.setMaterial(materialM);
+                    else
+                        sphere.setMaterial(materialH);
+                    posSphere = geoCoordTo3dCoord((float) lat, (float) lon);
+                    sphere.setTranslateX(posSphere.getX());
+                    sphere.setTranslateY(posSphere.getY());
+                    sphere.setTranslateZ(posSphere.getZ());
+                    pathGroup.getChildren().add(sphere);
+                } else {
+                    if (i % 4 == 0)
+                        lat = posHistory[i];
+                    else if (i % 4 == 1)
+                        lon = posHistory[i];
+                }
+            }
+        }
     }
 }
