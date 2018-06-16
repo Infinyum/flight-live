@@ -71,7 +71,7 @@ public class Geometry3D {
 
         Point3D position = geoCoordTo3dCoord(latitude, longitude);
 
-        planeScale.set3DScale(0.1);
+        planeScale.set3DScale(0.05);
         planeOffset.set3DTranslate(0, -0.01, 0);
         planeOffset.set3DRotate(0, 180 + angle, 0);
         plane.set3DTranslate(position.getX(),position.getY(),position.getZ());
@@ -97,7 +97,7 @@ public class Geometry3D {
 
 
     public void displayTown(Group parent, String name, float latitude, float longitude, PhongMaterial material) {
-        Sphere sphere = new Sphere(0.03);
+        Sphere sphere = new Sphere(0.02);
         sphere.setMaterial(material);
         Point3D city = geoCoordTo3dCoord(latitude, longitude);
         sphere.setTranslateX(city.getX());

@@ -173,8 +173,8 @@ public final class FlightLive {
      * @throws Exception
      */
     public FlightList getFlightsAirport(String airport_icao) throws Exception {
-        String filter = "fAirQ=" + airport_icao; // Creating the filter
-        return asynch_request(filter);    // Executing and returning the request
+        String filter = "fAirQ=" + airport_icao;    // Creating the filter
+        return asynch_request(filter);              // Executing and returning the request
     }
 
 
@@ -212,6 +212,31 @@ public final class FlightLive {
 
 
     /**
+     * Looks for flights going to the given airport and coming from the given country/city
+     * @param depName the departure country/city
+     * @param airportName the arrival airport
+     * @return FlightList with the flights concerned
+     * @throws Exception
+     */
+    public FlightList getFlightsFromCountryOrCityToAirport(String depName, String airportName) throws Exception {
+        FlightList flightsToAirport = getFlightsAirportTo(airportName);
+        if (flightsToAirport == null)
+            return null;
+
+        FlightList res = new FlightList();
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        for (Flight f : flightsToAirport.getAcList()) {
+            // If this flight comes from the given country/city
+            if (f.From.contains(depName))
+                res_fl.add(f);
+        }
+
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+        return res;
+    }
+
+
+    /**
      * Looks for flights coming from the airport given in arguments
      * @param airport_name  Name of the departure airport
      * @return Return a FlightList with the flights concerned
@@ -240,6 +265,31 @@ public final class FlightLive {
         FlightList res = new FlightList();
         res.setAcList(res_fl.stream().toArray(Flight[]::new));
         res.setLastDv(flights.getLastDv());
+        return res;
+    }
+
+
+    /**
+     * Looks for flights coming from the given airport and going to the given country/city
+     * @param airportName the departure airport
+     * @param destName the arrival country/city
+     * @return FlightList with the flights concerned
+     * @throws Exception
+     */
+    public FlightList getFlightsFromAirportToCountryOrCity(String airportName, String destName) throws Exception {
+        FlightList flightsFromAirport = getFlightsAirportFrom(airportName);
+        if (flightsFromAirport == null)
+            return null;
+
+        FlightList res = new FlightList();
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        for (Flight f : flightsFromAirport.getAcList()) {
+            // If this flights goes to the given country/city
+            if (f.To.contains(destName))
+                res_fl.add(f);
+        }
+
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
         return res;
     }
 
@@ -305,6 +355,31 @@ public final class FlightLive {
 
 
     /**
+     * Looks for flights going to the given city and coming from the given country/city
+     * @param depName the departure country/city
+     * @param cityName the arrival city
+     * @return FlightList which contains result flights
+     * @throws Exception
+     */
+    public FlightList getFlightsFromCountryOrCityToCity(String depName, String cityName) throws Exception {
+        FlightList flightsToCity = getFlightsCityTo(cityName);
+        if (flightsToCity == null)
+            return null;
+
+        FlightList res = new FlightList();
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        for (Flight f : flightsToCity.getAcList()) {
+            // If this flight comes from the given departure name
+            if (f.From.contains(depName))
+                res_fl.add(f);
+        }
+
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+        return res;
+    }
+
+
+    /**
      * Research flights coming from the city given in arguments
      * @param city_name Name of the city
      * @return FlightList which contains result flights
@@ -327,6 +402,32 @@ public final class FlightLive {
         }
 
         // Add results to res FlightList
+        res.setAcList(res_fl.stream().toArray(Flight[]::new));
+        return res;
+    }
+
+
+    /**
+     * Research flights coming from the given city and going to the given country
+     * @param cityName the departure city
+     * @param countryName the arrival country
+     * @return FlightList which contains result flights
+     * @throws Exception
+     */
+    public FlightList getFlightsFromCityToCountry(String cityName, String countryName) throws Exception{
+        // Retrieving all the flights coming from this city
+        FlightList flightsFromCity = getFlightsCityFrom(cityName);
+        if (flightsFromCity == null)
+            return null;
+
+        FlightList res = new FlightList();
+        ArrayList<Flight> res_fl = new ArrayList<>();
+        for (Flight f : flightsFromCity.getAcList()) {
+            // If this flight goes to the given country
+            if (f.To.contains(countryName))
+                res_fl.add(f);
+        }
+
         res.setAcList(res_fl.stream().toArray(Flight[]::new));
         return res;
     }

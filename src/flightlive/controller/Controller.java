@@ -83,7 +83,7 @@ public class Controller implements Initializable {
         airportsArrMaterial = new PhongMaterial(cpArrAirport.getValue());
         pathMaterial = new PhongMaterial(cpPath.getValue());
 
-        initializeCountryCbx();                            // Loading the countries list in the ComboBoxes
+        initializeCountryCbx(); // Loading the countries list in the ComboBoxes
 
         // Updating the ComboBoxes of cities according to the selected country
         cbxToCountry.setOnAction(event -> updateCurrentCountryTo());
@@ -137,105 +137,169 @@ public class Controller implements Initializable {
     }
 
 
-    // TODO: javadoc
     /**
      * Executes the right request based on the currently selected fields (e.g. not looking
      * for an airport if no airport is selected)
-     * @param planesGroup
-     * @param citiesGroup
+     * @param planesGroup a group containing all the planes
+     * @param citiesGroup a group containing all the cities
      */
     private int executeRequest(Group planesGroup, Group citiesGroup) {
-        // Checking for any missing information
-        if (currentCountryFrom == null) {
-            createDialogBox(1);
-            return -1;
-        }
-        else if (currentCountryTo == null) {
-            createDialogBox(2);
-            return -1;
-        }
-        else if (currentCityFrom == null && currentCityTo == null) {
-            createDialogBox(3);
-            return -1;
-        }
 
-        flightLabel.setText(""); // Resetting the label
+        // Not enough informtion given
+        if (currentCityFrom == null && currentCityTo == null) {
+            createDialogBox();
+            return -1;
+        }
+        // Resetting the whole interface
+        planesGroup.getChildren().clear();
+        citiesGroup.getChildren().clear();
+        lvFlights.getItems().clear();
+        flightLabel.setText("");
 
-        // If both cities are given
-        if (currentCityFrom != null && currentCityTo != null) {
-            // First case: all information provided
-            if (currentAirportFrom != null && currentAirportTo != null) {
-                try {
-                    currentFlightList = model.getFlightsBetweenAirports(currentAirportFrom.getName(), currentAirportTo.getName());
-                } catch (Exception e) {
-                    currentFlightList = null;
-                    return -1;
-                }
-            }
-            // Second case: only the cities are specified
-            if (currentAirportFrom == null && currentAirportTo == null) {
-                try {
-                    currentFlightList = model.getFlightsCities(currentCityFrom.getName(), currentCityTo.getName());
-                } catch (Exception e) {
-                    currentFlightList = null;
-                    return -1;
-                }
-            }
-            // Third case: the departure airport is given but not the arrival one
-            if (currentAirportFrom != null && currentAirportTo == null) {
-                try {
-                    currentFlightList = model.getFlightsFromAirportToCity(currentAirportFrom.getName(), currentCityTo.getName());
-                } catch (Exception e) {
-                    currentFlightList = null;
-                    return -1;
-                }
-            }
-            // Fourth case: the arrival airport is given but not the departure one
-            if (currentAirportFrom == null && currentAirportTo != null) {
-                try {
-                    currentFlightList = model.getFlightsFromCityToAirport(currentCityFrom.getName(), currentAirportTo.getName());
-                } catch (Exception e) {
-                    currentFlightList = null;
-                    return -1;
-                }
-            }
-        // Only the destination city is given
-        } else if (currentCityFrom == null && currentCityTo != null) {
-            if (currentAirportTo == null) {
-                try {
-                    currentFlightList = model.getFlightsCityTo(currentCityTo.getName());
-                } catch (Exception e) {
-                    currentFlightList = null;
-                    return -1;
-                }
-            } else {
-                try {
-                    currentFlightList = model.getFlightsAirportTo(currentAirportTo.getName());
-                } catch (Exception e) {
-                    currentFlightList = null;
-                    return -1;
-                }
-            }
-        // Only the departure city is given
-        } else if (currentCityFrom != null && currentCityTo == null) {
+        if (currentCountryFrom != null && currentCityFrom != null) {
             if (currentAirportFrom == null) {
-                try {
-                    currentFlightList = model.getFlightsCityFrom(currentCityFrom.getName());
-                } catch (Exception e) {
-                    currentFlightList = null;
-                    return -1;
+                if (currentCountryTo == null) {
+                    try {
+                        // x x o
+                        // o o o
+                        currentFlightList = model.getFlightsCityFrom(currentCityFrom.getName());
+                    } catch (Exception e) {
+                        currentFlightList = null;
+                        return -1;
+                    }
+                } else {
+                    if (currentCityTo == null) {
+                        try {
+                            // x x o
+                            // x o o
+                            currentFlightList = model.getFlightsFromCityToCountry(currentCityFrom.getName(), currentCountryTo.getName());
+                        } catch (Exception e) {
+                            currentFlightList = null;
+                            return -1;
+                        }
+                    } else {
+                        if (currentAirportTo == null) {
+                            try {
+                                // x x o
+                                // x x o
+                                currentFlightList = model.getFlightsCities(currentCityFrom.getName(), currentCityTo.getName());
+                            } catch (Exception e) {
+                                currentFlightList = null;
+                                return -1;
+                            }
+                        } else {
+                            try {
+                                // x x o
+                                // x x x
+                                currentFlightList = model.getFlightsFromCityToAirport(currentCityFrom.getName(), currentAirportTo.getName());
+                            } catch (Exception e) {
+                                currentFlightList = null;
+                                return -1;
+                            }
+                        }
+                    }
                 }
             } else {
-                try {
-                    currentFlightList = model.getFlightsAirportFrom(currentAirportFrom.getName());
-                } catch (Exception e) {
-                    currentFlightList = null;
-                    return -1;
+                if (currentCountryTo == null) {
+                    try {
+                        // x x x
+                        // o o o
+                        currentFlightList = model.getFlightsAirportFrom(currentAirportFrom.getName());
+                    } catch (Exception e) {
+                        currentFlightList = null;
+                        return -1;
+                    }
+                } else {
+                    if (currentCityTo == null) {
+                        try {
+                            // x x x
+                            // x o o
+                            currentFlightList = model.getFlightsFromAirportToCountryOrCity(currentAirportFrom.getName(), currentCountryTo.getName());
+                        } catch (Exception e) {
+                            currentFlightList = null;
+                            return -1;
+                        }
+                    } else {
+                        if (currentAirportTo == null) {
+                            try {
+                                // x x x
+                                // x x o
+                                currentFlightList = model.getFlightsFromAirportToCountryOrCity(currentAirportFrom.getName(), currentCityTo.getName());
+                            } catch (Exception e) {
+                                currentFlightList = null;
+                                return -1;
+                            }
+                        } else {
+                            try {
+                                // x x x
+                                // x x x
+                                currentFlightList = model.getFlightsBetweenAirports(currentAirportFrom.getName(), currentAirportTo.getName());
+                            } catch (Exception e) {
+                                currentFlightList = null;
+                                return -1;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            if (currentAirportTo == null) {
+                if (currentCountryFrom == null) {
+                    try {
+                        // o o o
+                        // x x o
+                        currentFlightList = model.getFlightsCityTo(currentCityTo.getName());
+                    } catch (Exception e) {
+                        currentFlightList = null;
+                        return -1;
+                    }
+                } else {
+                    if (currentCityFrom == null) {
+                        try {
+                            // x o o
+                            // x x o
+                            currentFlightList = model.getFlightsFromCountryOrCityToCity(currentCountryFrom.getName(), currentCityTo.getName());
+                        } catch (Exception e) {
+                            currentFlightList = null;
+                            return -1;
+                        }
+                    }
+                }
+            } else {
+                if (currentCountryFrom == null) {
+                    try {
+                        // o o o
+                        // x x x
+                        currentFlightList = model.getFlightsAirportTo(currentAirportTo.getName());
+                    } catch (Exception e) {
+                        currentFlightList = null;
+                        return -1;
+                    }
+                } else {
+                    if (currentCityFrom == null) {
+                        try {
+                            // x o o
+                            // x x x
+                            currentFlightList = model.getFlightsFromCountryOrCityToAirport(currentCountryFrom.getName(), currentAirportTo.getName());
+                        } catch (Exception e) {
+                            currentFlightList = null;
+                            return -1;
+                        }
+                    } else {
+                        try {
+                            // x x o
+                            // x x x
+                            currentFlightList = model.getFlightsFromCountryOrCityToAirport(currentCityFrom.getName(), currentAirportTo.getName());
+                        } catch (Exception e) {
+                            currentFlightList = null;
+                            return -1;
+                        }
+                    }
                 }
             }
         }
 
-        if (currentFlightList == null)
+        if (currentFlightList == null || currentFlightList.getAcList().length == 0)
             return -1;
 
         updateListView(); // Updating the ListView with the list of flights
@@ -244,11 +308,10 @@ public class Controller implements Initializable {
     }
 
 
-    // TODO: javadoc
     /**
-     *
-     * @param planesGroup
-     * @param citiesGroup
+     * Adds the cities and planes to the earth geometry
+     * @param planesGroup a group containing all the planes
+     * @param citiesGroup a group containing all the cities
      */
     private void updateEarth(Group planesGroup, Group citiesGroup) {
         citiesGroup.getChildren().clear();
@@ -331,29 +394,14 @@ public class Controller implements Initializable {
 
     /**
      * Creates a dialog box specifically for the error encountered
-     * @param param describes the error type
      */
-    private void createDialogBox(int param) {
+    private void createDialogBox() {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Missing Information");
         alert.setHeaderText(null);
         alert.initModality(Modality.APPLICATION_MODAL);
-        switch (param) {
-            case 1:
-                alert.setContentText("Please specify a country of departure");
-                alert.showAndWait();
-                break;
-            case 2:
-                alert.setContentText("Please specify a country of arrival");
-                alert.showAndWait();
-                break;
-            case 3:
-                alert.setContentText("Please specify at least one city");
-                alert.showAndWait();
-                break;
-            default:
-                break;
-        }
+        alert.setContentText("Please specify at least one city");
+        alert.showAndWait();
     }
 
 
