@@ -160,6 +160,7 @@ public final class FlightLive {
                 return flights;
             }
         }).get();
+
         client.close();
 
         return flights;

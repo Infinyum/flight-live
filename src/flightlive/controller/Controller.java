@@ -36,7 +36,7 @@ public class Controller implements Initializable {
     @FXML private ComboBox<String> cbxToCountry;
     @FXML private ComboBox<String> cbxToCity;
     @FXML private ComboBox<String> cbxToAirport;
-    @FXML private ListView lvFlights;
+    @FXML private ListView<String> lvFlights;
     @FXML private Label flightLabel;
     @FXML private Button btnGo;
     @FXML private Button btnClear;
@@ -128,16 +128,40 @@ public class Controller implements Initializable {
         planesGroup.setOnMousePressed(event -> {
             PickResult res = event.getPickResult();
             if (res.getIntersectedNode() instanceof MeshView) {
+                // Getting the plane Fx3DGroup object
                 Node plane = res.getIntersectedNode().getParent().getParent().getParent();
                 if (plane instanceof Fx3DGroup) {
                     if (currentPlane != null)
                         currentPlane.set3DScale(0.5);
+                    // Updating the current flight and plane
                     currentFlight = currentFlightList.getFlightById(Integer.parseInt(plane.getId()));
                     currentPlane = (Fx3DGroup)plane;
+                    // Updating the label
+                    flightLabel.setText(currentFlight.toString());
+                    // Showing the path and making the plane bigger
                     geo3D.displayPath(currentFlight, currentPlane);
+                    updateListViewSelection();
                 }
             }
         });
+    }
+
+
+    /**
+     * Updates the selected ListView item based on the currently selected plane
+     * @return
+     */
+    private int updateListViewSelection() {
+        for (int i = 0 ; i < lvFlights.getItems().size() ; i++) {
+            String s = lvFlights.getItems().get(i);
+            if (s.length() > 2) {
+                if (s.split(" ")[1].equals(currentPlane.getId())) {
+                    lvFlights.getSelectionModel().select(i);
+                    return 0;
+                }
+            }
+        }
+        return -1;
     }
 
 
