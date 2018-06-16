@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.input.PickResult;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -122,6 +123,21 @@ public class Controller implements Initializable {
 
         // When clicking on the list of flights
         lvFlights.setOnMousePressed(event -> updateLabelAndGlobe(planesGroup));
+
+        // Picking the plane
+        planesGroup.setOnMousePressed(event -> {
+            PickResult res = event.getPickResult();
+            if (res.getIntersectedNode() instanceof MeshView) {
+                Node plane = res.getIntersectedNode().getParent().getParent().getParent();
+                if (plane instanceof Fx3DGroup) {
+                    if (currentPlane != null)
+                        currentPlane.set3DScale(0.5);
+                    currentFlight = currentFlightList.getFlightById(Integer.parseInt(plane.getId()));
+                    currentPlane = (Fx3DGroup)plane;
+                    geo3D.displayPath(currentFlight, currentPlane);
+                }
+            }
+        });
     }
 
 
@@ -165,9 +181,9 @@ public class Controller implements Initializable {
     }
 
 
-    // TODO: change javadoc
     /**
-     * Updates the label with information about the currently selected flight
+     * Updates the label with information about the currently selected flight and updates the globe
+     * with the currently selected plane
      * @param planesGroup the group of planes
      */
     private void updateLabelAndGlobe(Group planesGroup) {
