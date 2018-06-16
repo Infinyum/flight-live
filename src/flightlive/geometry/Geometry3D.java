@@ -2,6 +2,7 @@ package flightlive.geometry;
 
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+import flightlive.model.Flight;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
@@ -47,7 +48,7 @@ public class Geometry3D {
     }
 
     // TODO: javadoc
-    public void createPlane(Group planeGroup, float latitude, float longitude, float angle, PhongMaterial material) {
+    public void createPlane(Group planeGroup, String id, float latitude, float longitude, float angle, PhongMaterial material) {
 
         // Load geometry
         ObjModelImporter planeImporter = new ObjModelImporter();
@@ -63,11 +64,10 @@ public class Geometry3D {
             mv.setMaterial(material);
         }
 
-        //...
-
         Fx3DGroup planeScale = new Fx3DGroup(planeMeshViews);
         Fx3DGroup planeOffset = new Fx3DGroup(planeScale);
         Fx3DGroup plane = new Fx3DGroup(planeOffset);
+        plane.setId(id);
 
         Point3D position = geoCoordTo3dCoord(latitude, longitude);
 
@@ -80,7 +80,7 @@ public class Geometry3D {
                 java.lang.Math.toDegrees(java.lang.Math.atan2(position.getX(), position.getZ())),
                 0);
 
-        planeGroup.getChildren().addAll(plane);
+        planeGroup.getChildren().add(plane);
     }
 
 
@@ -104,5 +104,10 @@ public class Geometry3D {
         sphere.setTranslateY(city.getY());
         sphere.setTranslateZ(city.getZ());
         parent.getChildren().add(sphere);
+    }
+
+
+    public void displayPath(Flight flight, Fx3DGroup plane) {
+        plane.set3DScale(2.0);
     }
 }

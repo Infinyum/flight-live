@@ -2,6 +2,7 @@ package flightlive.controller;
 
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+import flightlive.geometry.Fx3DGroup;
 import flightlive.geometry.Geometry3D;
 import flightlive.model.*;
 import javafx.fxml.FXML;
@@ -37,6 +38,7 @@ public class Controller implements Initializable {
     @FXML private ListView lvFlights;
     @FXML private Label flightLabel;
     @FXML private Button btnGo;
+    @FXML private Button btnClear;
     @FXML private Pane paneEarth;
     @FXML private ColorPicker cpDepAirport;
     @FXML private ColorPicker cpArrAirport;
@@ -52,6 +54,7 @@ public class Controller implements Initializable {
     private Airport currentAirportTo = null;
     private FlightList currentFlightList = null;
     private Flight currentFlight = null;
+    private Fx3DGroup currentPlane = null;
 
     private PhongMaterial planesMaterial;
     private PhongMaterial airportsDepMaterial;
@@ -78,6 +81,7 @@ public class Controller implements Initializable {
         Group citiesGroup = new Group();
         earthGroup.getChildren().add(citiesGroup);
 
+        // Setting the materials for the planes, path and cities
         planesMaterial = new PhongMaterial(cpFlight.getValue());
         airportsDepMaterial = new PhongMaterial(cpDepAirport.getValue());
         airportsArrMaterial = new PhongMaterial(cpArrAirport.getValue());
@@ -106,32 +110,94 @@ public class Controller implements Initializable {
                 currentAirportFrom = null;
         });
 
-        btnGo.setOnAction(event -> executeRequest(planesGroup, citiesGroup)); // Executing request when button pressed
+        // When clicking on a button
+        btnGo.setOnAction(event -> executeRequest(planesGroup, citiesGroup));
+        btnClear.setOnAction(event -> clear(planesGroup, citiesGroup));
 
+        // When changing the color
         cpDepAirport.setOnAction(event -> airportsDepMaterial.setDiffuseColor(cpDepAirport.getValue()));
         cpArrAirport.setOnAction(event -> airportsArrMaterial.setDiffuseColor(cpArrAirport.getValue()));
         cpFlight.setOnAction(event -> planesMaterial.setDiffuseColor(cpFlight.getValue()));
         cpPath.setOnAction(event -> pathMaterial.setDiffuseColor(cpPath.getValue()));
 
-        lvFlights.setOnMousePressed(event -> updateLabel());
+        // When clicking on the list of flights
+        lvFlights.setOnMousePressed(event -> updateLabelAndGlobe(planesGroup));
     }
 
 
     /**
-     * Updates the label with information about the currently selected flight
+     * Clears all the ComboBoxes, label, listview, globe...
+     * @param planesGroup the group of planes
+     * @param citiesGroup the group of cities
      */
-    private void updateLabel() {
+    private void clear(Group planesGroup, Group citiesGroup) {
+        cbxToAirport.getSelectionModel().clearSelection();
+        cbxToAirport.getItems().clear();
+
+        cbxFromAirport.getSelectionModel().clearSelection();
+        cbxFromAirport.getItems().clear();
+
+        cbxFromCity.getSelectionModel().clearSelection();
+        cbxFromCity.getItems().clear();
+
+        cbxToCity.getSelectionModel().clearSelection();
+        cbxToCity.getItems().clear();
+
+        cbxFromCountry.getSelectionModel().clearSelection();
+        cbxFromCountry.getItems().clear();
+
+        cbxToCountry.getSelectionModel().clearSelection();
+        cbxToCountry.getItems().clear();
+
+        initializeCountryCbx(); // Loading the countries list in the ComboBoxes
+
+        currentCountryFrom = null;
+        currentCountryTo = null;
+        currentCityFrom = null;
+        currentCityTo = null;
+        currentAirportFrom = null;
+        currentAirportTo = null;
+
+        lvFlights.getItems().clear();
+        flightLabel.setText("");
+        citiesGroup.getChildren().clear();
+        planesGroup.getChildren().clear();
+    }
+
+
+    // TODO: change javadoc
+    /**
+     * Updates the label with information about the currently selected flight
+     * @param planesGroup the group of planes
+     */
+    private void updateLabelAndGlobe(Group planesGroup) {
         // Retrieving the selected item
         String selectedItem = lvFlights.getSelectionModel().getSelectedItems().toString();
 
         // If it's not an empty item (i.e. '[]')
         if (selectedItem.length() > 2) {
-            int selectedFlightId = Integer.parseInt(selectedItem.split(" ")[1]);
-            currentFlight = currentFlightList.getFlightById(selectedFlightId);
+            String selectedFlightId = selectedItem.split(" ")[1];
+            // Updating the label
+            currentFlight = currentFlightList.getFlightById(Integer.parseInt(selectedFlightId));
             if (currentFlight != null) {
                 flightLabel.setText(currentFlight.toString());
             } else
                 flightLabel.setText("");
+
+            if (currentPlane != null)
+                currentPlane.set3DScale(0.5);
+
+            // Picking the plane
+            for (Node n : planesGroup.getChildren()) {
+                if (n instanceof Fx3DGroup) {
+                    if (n.getId().equals(selectedFlightId)) {
+                        currentPlane = (Fx3DGroup)n;
+                    }
+                }
+            }
+
+            geo3D.displayPath(currentFlight, currentPlane);
+
         } else
             flightLabel.setText("");
     }
@@ -359,7 +425,7 @@ public class Controller implements Initializable {
 
         planesGroup.getChildren().clear();
         for (Flight f : currentFlightList.getAcList())
-            geo3D.createPlane(planesGroup, f.Lat, f.Long, f.Trak, planesMaterial);
+            geo3D.createPlane(planesGroup, String.valueOf(f.Id),f.Lat, f.Long, f.Trak, planesMaterial);
     }
 
 

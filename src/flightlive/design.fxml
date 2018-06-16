@@ -100,10 +100,15 @@
                <GridPane.margin>
                   <Insets left="5.0" right="5.0" />
                </GridPane.margin></ComboBox>
-            <Button id="go" fx:id="btnGo" alignment="BOTTOM_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="GO" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="CENTER">
+            <Button id="go" fx:id="btnGo" alignment="BOTTOM_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" text="GO" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                <font>
-                  <Font size="20.0" />
+                  <Font size="16.0" />
                </font></Button>
+            <Button id="go" fx:id="btnClear" alignment="BOTTOM_RIGHT" contentDisplay="CENTER" layoutX="611.0" layoutY="38.0" mnemonicParsing="false" text="Clear" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Button>
          </children>
       </GridPane>
       <HBox layoutX="240.0" layoutY="189.0" prefHeight="500.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
