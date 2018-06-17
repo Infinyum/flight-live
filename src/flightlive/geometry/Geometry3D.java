@@ -96,7 +96,8 @@ public class Geometry3D {
 
 
     public void displayTown(Group parent, String name, float latitude, float longitude, PhongMaterial material) {
-        Sphere sphere = new Sphere(0.02);
+        Sphere sphere = new Sphere(0.002);
+        sphere.setId(name);
         sphere.setMaterial(material);
         Point3D city = geoCoordTo3dCoord(latitude, longitude);
         sphere.setTranslateX(city.getX());

@@ -14,6 +14,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
+import javafx.scene.shape.Sphere;
 import javafx.stage.Modality;
 
 import java.net.URL;
@@ -62,7 +63,7 @@ public class Controller implements Initializable {
     private PhongMaterial pathMaterialHigh;
 
     // Used for 3D stuff
-    Geometry3D geo3D = new Geometry3D();
+    private Geometry3D geo3D = new Geometry3D();
 
 
     /* /////////////////////////////////////////////////////////////////////////////// */
@@ -98,6 +99,7 @@ public class Controller implements Initializable {
         pathMaterialLow = new PhongMaterial(pathMaterialMedium.getDiffuseColor().deriveColor(20, 1, 1, 1));
 
         initializeCountryCbx(); // Loading the countries list in the ComboBoxes
+        displayAirports(citiesGroup);
 
         // Updating the ComboBoxes of cities according to the selected country
         cbxToCountry.setOnAction(event -> updateCurrentCountryTo());
@@ -157,6 +159,44 @@ public class Controller implements Initializable {
                 }
             }
         });
+
+        // Picking the airport
+        citiesGroup.setOnMousePressed(event -> {
+            PickResult res = event.getPickResult();
+            if (res.getIntersectedNode() instanceof Sphere) {
+                Airport a = model.getAirportByIcao(res.getIntersectedNode().getId());
+                if (a != null) {
+                    if (currentCityFrom == null) {
+                        cbxFromCountry.setValue(a.getCity().getCountry().getName());
+                        cbxFromCity.setValue(a.getCity().getName());
+                        cbxFromAirport.setValue(a.getName());
+                    } else if (currentCityTo == null) {
+                        cbxToCountry.setValue(a.getCity().getCountry().getName());
+                        cbxToCity.setValue(a.getCity().getName());
+                        cbxToAirport.setValue(a.getName());
+                    }
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Displays all airports affected by at least one flight in progress
+     * @param citiesGroup the group containing all the cities
+     */
+    private void displayAirports(Group citiesGroup) {
+        ArrayList<Country> countries = model.getCountries();
+        for (Country c : countries) {
+            for (City ci : c.getCities()) {
+                for (Airport a : ci.getAirports()) {
+                    double lat = a.getLatitude();
+                    double lon = a.getLongitude();
+                    geo3D.displayTown(citiesGroup, a.getIcao(),
+                            (float)lat, (float)lon, airportsArrMaterial);
+                }
+            }
+        }
     }
 
 
@@ -216,6 +256,7 @@ public class Controller implements Initializable {
         citiesGroup.getChildren().clear();
         planesGroup.getChildren().clear();
         pathGroup.getChildren().clear();
+        displayAirports(citiesGroup);
     }
 
 

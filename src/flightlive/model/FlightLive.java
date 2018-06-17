@@ -119,10 +119,10 @@ public final class FlightLive {
     public City getCity(String n) {
         for (Country c : countries) {
             for (City ci : c.getCities()) {
-                if (ci.getName().equals(n)) return ci;
+                if (ci.getName().equals(n))
+                    return ci;
             }
         }
-        System.err.println("Error: city not found");
         return null;
     }
 
