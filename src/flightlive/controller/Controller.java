@@ -11,11 +11,13 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.PickResult;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 
 import java.net.URL;
 import java.util.*;
@@ -178,6 +180,26 @@ public class Controller implements Initializable {
                 }
             }
         });
+
+        earthGroup.setOnMouseClicked(event -> {
+            PickResult res = event.getPickResult();
+            //geo3D.coord3dToGeoCoord(res.getIntersectedPoint());
+            double lat = java.lang.Math.toDegrees(java.lang.Math.asin(-res.getIntersectedPoint().getY())) + 0.2f;
+            double lon = java.lang.Math.toDegrees(java.lang.Math.acos(res.getIntersectedPoint().getZ()
+                    / java.lang.Math.cos(java.lang.Math.asin(-res.getIntersectedPoint().getY())))) - 2.8f;
+            //geo3D.displayTown(citiesGroup, "MON POINT", lat, lon, airportsDepMaterial);
+            askRadius(lat, lon, citiesGroup, planesGroup);
+        });
+    }
+
+
+    private void askRadius(double lat, double lon, Group citiesGroup, Group planesGroup) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setContentText("In which radius do you want to search for the flights ?");
+        alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+        System.err.println(alert.showAndWait().get());
+
+        // SEE ALSO: Popup class, DialogPane class
     }
 
 

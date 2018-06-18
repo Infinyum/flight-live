@@ -1,12 +1,11 @@
 package flightlive;
 
-import flightlive.controller.Controller;
-import flightlive.model.FlightLive;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class Main extends Application {
     @Override

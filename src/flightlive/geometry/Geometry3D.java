@@ -70,7 +70,7 @@ public class Geometry3D {
 
         Point3D position = geoCoordTo3dCoord(latitude, longitude);
 
-        planeScale.set3DScale(0.05);
+        planeScale.set3DScale(0.015);
         planeOffset.set3DTranslate(0, -0.01, 0);
         planeOffset.set3DRotate(0, 180 + angle, 0);
         plane.set3DTranslate(position.getX(),position.getY(),position.getZ());
@@ -92,6 +92,17 @@ public class Geometry3D {
                 -java.lang.Math.sin(java.lang.Math.toRadians(lat_cor)),
                 java.lang.Math.cos(java.lang.Math.toRadians(lon_cor))
                         * java.lang.Math.cos(java.lang.Math.toRadians(lat_cor)));
+    }
+
+
+    public void coord3dToGeoCoord(Point3D p) {
+        double lat_cor = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getY()));
+        float lat = (float)lat_cor - TEXTURE_LAT_OFFSET;
+        double lon_cor = java.lang.Math.toDegrees(java.lang.Math.acos(p.getZ() / java.lang.Math.cos(java.lang.Math.asin(-p.getY()))));
+        float lon = (float)lon_cor - TEXTURE_LON_OFFSET;
+        System.err.println("LATITUDE: " + lat);
+        System.err.println("LONGITUDE: " + lon);
+
     }
 
 
@@ -122,7 +133,7 @@ public class Geometry3D {
             for (int i = 0; i < posHistory.length; i++) {
                 // Create one point of the path with an old position
                 if ((i + 1) % 4 == 0) {
-                    sphere = new Sphere(0.01);
+                    sphere = new Sphere(0.003);
                     if (posHistory[i] < 400)
                         sphere.setMaterial(materialL);
                     else if (posHistory[i] < 600)
