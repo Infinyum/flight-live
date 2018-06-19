@@ -5,6 +5,7 @@ import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 import flightlive.model.Flight;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
@@ -153,5 +154,21 @@ public class Geometry3D {
                 }
             }
         }
+    }
+
+    // TODO: javadoc
+    public void displayRadius(Group radiusGroup, int radius, Point3D p) {
+        Sphere radiusIndicator = new Sphere();
+        radiusIndicator.setTranslateX(p.getX());
+        radiusIndicator.setTranslateY(p.getY());
+        radiusIndicator.setTranslateZ(p.getZ());
+        radiusIndicator.setRadius(0.02);
+        radiusIndicator.setOpacity(0.2);
+        //radiusIndicator.setMaterial(new PhongMaterial(new Color(1.0f, 0.f, 0.f, 0.1f)));
+        //PhongMaterial material = new PhongMaterial();
+        //material.setDiffuseColor(new Color(1.0f, 1.f, 1.f, 0.2f));
+        //material.setSpecularColor(Color.INDIANRED);
+        //radiusIndicator.setMaterial(material);
+        radiusGroup.getChildren().add(radiusIndicator);
     }
 }

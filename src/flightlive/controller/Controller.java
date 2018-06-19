@@ -7,6 +7,7 @@ import flightlive.geometry.Geometry3D;
 import flightlive.model.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.PickResult;
@@ -87,6 +88,9 @@ public class Controller implements Initializable {
         // Creating the group for the path
         Group pathGroup = new Group();
         earthGroup.getChildren().add(pathGroup);
+        // Creating the group for the radius
+        Group radiusGroup = new Group();
+        earthGroup.getChildren().add(radiusGroup);
 
         // Setting the materials for the planes, path and cities
         cpFlight.setValue(Color.RED);
@@ -183,24 +187,30 @@ public class Controller implements Initializable {
 
         earthGroup.setOnMouseClicked(event -> {
             PickResult res = event.getPickResult();
-            //geo3D.coord3dToGeoCoord(res.getIntersectedPoint());
-            double lat = java.lang.Math.toDegrees(java.lang.Math.asin(-res.getIntersectedPoint().getY())) + 0.2f;
+            Point3D p = res.getIntersectedPoint();
+            double lat = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getY())) + 0.2f;
+            // First case issue: lon between 0° and 180°
             double lon = java.lang.Math.toDegrees(java.lang.Math.acos(res.getIntersectedPoint().getZ()
                     / java.lang.Math.cos(java.lang.Math.asin(-res.getIntersectedPoint().getY())))) - 2.8f;
-            //geo3D.displayTown(citiesGroup, "MON POINT", lat, lon, airportsDepMaterial);
-            askRadius(lat, lon, citiesGroup, planesGroup);
+
+            // Second case issue: lon between -90° and 90°
+            //double lon = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getX()
+            //        / java.lang.Math.cos(java.lang.Math.asin(-p.getY())))) - 2.8f;
+
+            //geo3D.displayTown(citiesGroup, "MON POINT", (float)lat, (float)lon, airportsDepMaterial);
+            geo3D.displayRadius(radiusGroup, 1, p);
         });
     }
 
 
-    private void askRadius(double lat, double lon, Group citiesGroup, Group planesGroup) {
+    /*private void askRadius(double lat, double lon, Group citiesGroup, Group planesGroup) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setContentText("In which radius do you want to search for the flights ?");
         alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         System.err.println(alert.showAndWait().get());
 
         // SEE ALSO: Popup class, DialogPane class
-    }
+    }*/
 
 
     /**
