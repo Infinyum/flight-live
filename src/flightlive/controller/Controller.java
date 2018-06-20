@@ -15,6 +15,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.stage.Modality;
@@ -46,6 +47,9 @@ public class Controller implements Initializable {
     @FXML private ColorPicker cpArrAirport;
     @FXML private ColorPicker cpFlight;
     @FXML private ColorPicker cpPath;
+    @FXML private TextField txtfAirports;
+    @FXML private TextField txtfFlights;
+    @FXML private TextField txtfPath;
 
     // Current values are stored here
     private Country currentCountryFrom = null;
@@ -157,7 +161,8 @@ public class Controller implements Initializable {
                     // Updating the label
                     flightLabel.setText(currentFlight.toString());
                     // Showing the path and making the plane bigger
-                    geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialHigh);
+                    double scale = (txtfPath.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfPath.getText()) : 1);
+                    geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialHigh, scale);
                     updateListViewSelection();
                 }
             }
@@ -213,6 +218,45 @@ public class Controller implements Initializable {
                 }
             }
         });
+
+        // Event to change size of Airports
+        txtfAirports.textProperty().addListener(event -> {
+            if(txtfAirports.getText().matches("\\d+(\\.\\d+)?")) {
+                Double sc = Double.parseDouble(txtfAirports.getText());
+                for(Node node : citiesGroup.getChildren()) {
+                    if(node instanceof Sphere) {
+                        ((Sphere) node).setScaleX(sc);
+                        ((Sphere) node).setScaleY(sc);
+                        ((Sphere) node).setScaleZ(sc);
+                    }
+                }
+            }
+        });
+
+        // Event to change size of Planes
+        txtfFlights.textProperty().addListener(event-> {
+            if(txtfFlights.getText().matches("\\d+(\\.\\d+)?")) {
+                Double sc = Double.parseDouble(txtfFlights.getText());
+                for(Node node : planesGroup.getChildren()) {
+                    if(node instanceof Fx3DGroup)
+                        ((Fx3DGroup) node).set3DScale(sc);
+                }
+
+                if(currentPlane != null)
+                    currentPlane.set3DScale(sc + 2.0);
+            }
+        });
+
+        // Event to change size of Path
+        txtfPath.textProperty().addListener(event -> {
+            if(txtfPath.getText().matches("\\d+(\\.\\d+)?")) {
+                Double sc = Double.parseDouble(txtfPath.getText());
+                for(Node node : pathGroup.getChildren()) {
+                    if(node instanceof Cylinder)
+                        ((Cylinder) node).setRadius(0.005f * sc);
+                }
+            }
+        });
     }
 
 
@@ -237,8 +281,9 @@ public class Controller implements Initializable {
                 for (Airport a : ci.getAirports()) {
                     double lat = a.getLatitude();
                     double lon = a.getLongitude();
+                    double scale = (txtfAirports.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfAirports.getText()) : 1);
                     geo3D.displayTown(citiesGroup, a.getIcao(),
-                            (float)lat, (float)lon, airportsArrMaterial);
+                            (float)lat, (float)lon, airportsArrMaterial, scale);
                 }
             }
         }
@@ -337,7 +382,8 @@ public class Controller implements Initializable {
                 }
             }
 
-            geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialHigh);
+            double scale = (txtfPath.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfPath.getText()) : 1);
+            geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialHigh, scale);
 
         } else
             flightLabel.setText("");
@@ -522,13 +568,16 @@ public class Controller implements Initializable {
      * @param citiesGroup a group containing all the cities
      */
     private void updateEarth(Group planesGroup, Group citiesGroup) {
+        double scaleTown = (txtfAirports.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfAirports.getText()) : 1);
+        double scalePlane = (txtfFlights.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfFlights.getText()) : 1);
+
         citiesGroup.getChildren().clear();
         // If the current departure city is given
         if (currentCityFrom != null) {
             double latCityFrom = currentCityFrom.getAirports().get(0).getLatitude();
             double lonCityFrom = currentCityFrom.getAirports().get(0).getLongitude();
             geo3D.displayTown(citiesGroup, currentCityFrom.getName(),
-                    (float)latCityFrom, (float)lonCityFrom, airportsDepMaterial);
+                    (float)latCityFrom, (float)lonCityFrom, airportsDepMaterial, scaleTown);
         // If not
         } else {
             ArrayList<String> icaos = new ArrayList<>();
@@ -542,7 +591,7 @@ public class Controller implements Initializable {
                 Airport temp = model.getAirportByIcao(icao);
                 if (temp != null) {
                     geo3D.displayTown(citiesGroup, temp.getName(), (float)temp.getLatitude(),
-                            (float)temp.getLongitude(), airportsDepMaterial);
+                            (float)temp.getLongitude(), airportsDepMaterial, scaleTown);
                 }
             }
         }
@@ -551,7 +600,7 @@ public class Controller implements Initializable {
             double latCityTo = currentCityTo.getAirports().get(0).getLatitude();
             double lonCityTo = currentCityTo.getAirports().get(0).getLongitude();
             geo3D.displayTown(citiesGroup, currentCityTo.getName(),
-                    (float)latCityTo, (float)lonCityTo, airportsArrMaterial);
+                    (float)latCityTo, (float)lonCityTo, airportsArrMaterial, scaleTown);
         } else {
             ArrayList<String> icaos = new ArrayList<>();
             for (Flight f : currentFlightList.getAcList()) {
@@ -564,14 +613,15 @@ public class Controller implements Initializable {
                 Airport temp = model.getAirportByIcao(icao);
                 if (temp != null) {
                     geo3D.displayTown(citiesGroup, temp.getName(), (float)temp.getLatitude(),
-                            (float)temp.getLongitude(), airportsArrMaterial);
+                            (float)temp.getLongitude(), airportsArrMaterial, scaleTown);
                 }
             }
         }
 
         planesGroup.getChildren().clear();
         for (Flight f : currentFlightList.getAcList())
-            geo3D.createPlane(planesGroup, String.valueOf(f.Id),f.Lat, f.Long, f.Trak, planesMaterial);
+            geo3D.createPlane(planesGroup, String.valueOf(f.Id),f.Lat, f.Long, f.Trak, planesMaterial, scalePlane);
+        System.err.println(scalePlane);
     }
 
 

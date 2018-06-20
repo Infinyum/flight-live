@@ -28,7 +28,7 @@ public class Geometry3D {
     /* /////////////////////////////////////////////////////////////////////////////// */
 
     // From Rahel Lüthy : https://netzwerg.ch/blog/2015/03/22/javafx-3d-line/
-    public Cylinder createLine(Point3D origin, Point3D target) {
+    public Cylinder createLine(Point3D origin, Point3D target, double scale) {
         Point3D yAxis = new Point3D(0, 1, 0);
         Point3D diff = target.subtract(origin);
         double height = diff.magnitude();
@@ -40,7 +40,7 @@ public class Geometry3D {
         double angle = Math.acos(diff.normalize().dotProduct(yAxis));
         Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation);
 
-        Cylinder line = new Cylinder(0.005f, height);
+        Cylinder line = new Cylinder(0.005f * scale, height);
 
         line.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
 
@@ -48,7 +48,7 @@ public class Geometry3D {
     }
 
     // TODO: javadoc
-    public void createPlane(Group planeGroup, String id, float latitude, float longitude, float angle, PhongMaterial material) {
+    public void createPlane(Group planeGroup, String id, float latitude, float longitude, float angle, PhongMaterial material, double scale) {
 
         // Load geometry
         ObjModelImporter planeImporter = new ObjModelImporter();
@@ -80,6 +80,8 @@ public class Geometry3D {
                 java.lang.Math.toDegrees(java.lang.Math.atan2(position.getX(), position.getZ())),
                 0);
 
+        plane.set3DScale(scale);
+
         planeGroup.getChildren().add(plane);
     }
 
@@ -107,7 +109,7 @@ public class Geometry3D {
     }
 
 
-    public void displayTown(Group parent, String name, float latitude, float longitude, PhongMaterial material) {
+    public void displayTown(Group parent, String name, float latitude, float longitude, PhongMaterial material, double scale) {
         Sphere sphere = new Sphere(0.002);
         sphere.setId(name);
         sphere.setMaterial(material);
@@ -115,11 +117,16 @@ public class Geometry3D {
         sphere.setTranslateX(city.getX());
         sphere.setTranslateY(city.getY());
         sphere.setTranslateZ(city.getZ());
+
+        sphere.setScaleX(scale);
+        sphere.setScaleY(scale);
+        sphere.setScaleZ(scale);
+
         parent.getChildren().add(sphere);
     }
 
 
-    public void displayPath(Flight flight, Fx3DGroup plane, Group pathGroup, PhongMaterial materialL, PhongMaterial materialH) {
+    public void displayPath(Flight flight, Fx3DGroup plane, Group pathGroup, PhongMaterial materialL, PhongMaterial materialH, double scale) {
         Cylinder tmp;
         Point3D posOrigin = null, posTarget = null;
         double lat = 0, lon = 0;
@@ -137,8 +144,8 @@ public class Geometry3D {
                     posTarget = geoCoordTo3dCoord((float) lat, (float) lon);
                     // Create cylinder
                     if(posOrigin != null) {
-                        tmp = createLine(posOrigin, posTarget);
-                        if (posHistory[i] < 500)
+                        tmp = createLine(posOrigin, posTarget, scale);
+                        if (posHistory[i] < 400)
                             tmp.setMaterial(materialL);
                         else
                             tmp.setMaterial(materialH);

@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -17,32 +18,55 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="700.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="flightlive.controller.Controller">
+<AnchorPane id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="700.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="flightlive.controller.Controller">
    <children>
       <MenuBar prefHeight="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu mnemonicParsing="false" text="Settings">
                <items>
-                  <MenuItem mnemonicParsing="false" text="Departure airport color">
-                     <graphic>
-                        <ColorPicker fx:id="cpDepAirport" />
-                     </graphic>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Arrival airport color">
-                     <graphic>
-                        <ColorPicker fx:id="cpArrAirport" />
-                     </graphic>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Flight color">
-                     <graphic>
-                        <ColorPicker fx:id="cpFlight" />
-                     </graphic>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Path color">
-                     <graphic>
-                        <ColorPicker fx:id="cpPath" />
-                     </graphic>
-                  </MenuItem>
+                  <Menu mnemonicParsing="false" text="Color">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Departure airport color">
+                           <graphic>
+                              <ColorPicker fx:id="cpDepAirport" />
+                           </graphic>
+                        </MenuItem>
+                        <MenuItem mnemonicParsing="false" text="Arrival airport color">
+                           <graphic>
+                              <ColorPicker fx:id="cpArrAirport" />
+                           </graphic>
+                        </MenuItem>
+                        <MenuItem mnemonicParsing="false" text="Flight color">
+                           <graphic>
+                              <ColorPicker fx:id="cpFlight" />
+                           </graphic>
+                        </MenuItem>
+                        <MenuItem mnemonicParsing="false" text="Path color">
+                           <graphic>
+                              <ColorPicker fx:id="cpPath" />
+                           </graphic>
+                        </MenuItem>
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Scale">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Airports">
+                           <graphic>
+                              <TextField fx:id="txtfAirports" alignment="CENTER_RIGHT" maxWidth="-Infinity" prefWidth="70.0" text="1" />
+                           </graphic>
+                        </MenuItem>
+                        <MenuItem mnemonicParsing="false" text="Flights">
+                           <graphic>
+                              <TextField fx:id="txtfFlights" alignment="CENTER_RIGHT" maxWidth="-Infinity" prefWidth="70.0" text="1" />
+                           </graphic>
+                        </MenuItem>
+                        <MenuItem mnemonicParsing="false" text="Path">
+                           <graphic>
+                              <TextField fx:id="txtfPath" alignment="CENTER_RIGHT" maxWidth="-Infinity" prefWidth="70.0" text="1" />
+                           </graphic>
+                        </MenuItem>
+                     </items>
+                  </Menu>
                </items></Menu>
         </menus>
          <padding>
