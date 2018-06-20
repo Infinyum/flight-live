@@ -62,7 +62,6 @@ public class Controller implements Initializable {
     private PhongMaterial airportsDepMaterial;
     private PhongMaterial airportsArrMaterial;
     private PhongMaterial pathMaterialLow;
-    private PhongMaterial pathMaterialMedium;
     private PhongMaterial pathMaterialHigh;
 
     // Used for 3D stuff
@@ -101,8 +100,7 @@ public class Controller implements Initializable {
         airportsDepMaterial = new PhongMaterial(cpDepAirport.getValue());
         airportsArrMaterial = new PhongMaterial(cpArrAirport.getValue());
         pathMaterialHigh = new PhongMaterial(cpPath.getValue());
-        pathMaterialMedium = new PhongMaterial(pathMaterialHigh.getDiffuseColor().deriveColor(20, 1, 1, 1));
-        pathMaterialLow = new PhongMaterial(pathMaterialMedium.getDiffuseColor().deriveColor(20, 1, 1, 1));
+        pathMaterialLow = new PhongMaterial(pathMaterialHigh.getDiffuseColor().deriveColor(20, 1, 1, 1));
 
         initializeCountryCbx(); // Loading the countries list in the ComboBoxes
         displayAirports(citiesGroup);
@@ -138,8 +136,7 @@ public class Controller implements Initializable {
         cpFlight.setOnAction(event -> planesMaterial.setDiffuseColor(cpFlight.getValue()));
         cpPath.setOnAction(event -> {
             pathMaterialHigh.setDiffuseColor(cpPath.getValue());
-            pathMaterialMedium.setDiffuseColor(pathMaterialHigh.getDiffuseColor().deriveColor(20, 1, 1 , 1));
-            pathMaterialLow.setDiffuseColor(pathMaterialMedium.getDiffuseColor().deriveColor(20, 1, 1 , 1));
+            pathMaterialLow.setDiffuseColor(pathMaterialHigh.getDiffuseColor().deriveColor(20, 1, 1 , 1));
         });
 
         // When clicking on the list of flights
@@ -160,7 +157,7 @@ public class Controller implements Initializable {
                     // Updating the label
                     flightLabel.setText(currentFlight.toString());
                     // Showing the path and making the plane bigger
-                    geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialMedium, pathMaterialHigh);
+                    geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialHigh);
                     updateListViewSelection();
                 }
             }
@@ -323,7 +320,7 @@ public class Controller implements Initializable {
                 }
             }
 
-            geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialMedium, pathMaterialHigh);
+            geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialHigh);
 
         } else
             flightLabel.setText("");

@@ -40,7 +40,7 @@ public class Geometry3D {
         double angle = Math.acos(diff.normalize().dotProduct(yAxis));
         Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation);
 
-        Cylinder line = new Cylinder(0.01f, height);
+        Cylinder line = new Cylinder(0.005f, height);
 
         line.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
 
@@ -119,9 +119,9 @@ public class Geometry3D {
     }
 
 
-    public void displayPath(Flight flight, Fx3DGroup plane, Group pathGroup, PhongMaterial materialL, PhongMaterial materialM, PhongMaterial materialH) {
-        Sphere sphere;
-        Point3D posSphere;
+    public void displayPath(Flight flight, Fx3DGroup plane, Group pathGroup, PhongMaterial materialL, PhongMaterial materialH) {
+        Cylinder tmp;
+        Point3D posOrigin = null, posTarget = null;
         double lat = 0, lon = 0;
 
         // Change size of the plane object
@@ -132,20 +132,19 @@ public class Geometry3D {
         double[] posHistory = flight.getCot();
         if(posHistory != null) {
             for (int i = 0; i < posHistory.length; i++) {
-                // Create one point of the path with an old position
+                // We collected all information about one position of the history
                 if ((i + 1) % 4 == 0) {
-                    sphere = new Sphere(0.003);
-                    if (posHistory[i] < 400)
-                        sphere.setMaterial(materialL);
-                    else if (posHistory[i] < 600)
-                        sphere.setMaterial(materialM);
-                    else
-                        sphere.setMaterial(materialH);
-                    posSphere = geoCoordTo3dCoord((float) lat, (float) lon);
-                    sphere.setTranslateX(posSphere.getX());
-                    sphere.setTranslateY(posSphere.getY());
-                    sphere.setTranslateZ(posSphere.getZ());
-                    pathGroup.getChildren().add(sphere);
+                    posTarget = geoCoordTo3dCoord((float) lat, (float) lon);
+                    // Create cylinder
+                    if(posOrigin != null) {
+                        tmp = createLine(posOrigin, posTarget);
+                        if (posHistory[i] < 500)
+                            tmp.setMaterial(materialL);
+                        else
+                            tmp.setMaterial(materialH);
+                        pathGroup.getChildren().add(tmp);
+                    }
+                    posOrigin = posTarget;
                 } else {
                     if (i % 4 == 0)
                         lat = posHistory[i];
