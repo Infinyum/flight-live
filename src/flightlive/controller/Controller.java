@@ -621,7 +621,6 @@ public class Controller implements Initializable {
         planesGroup.getChildren().clear();
         for (Flight f : currentFlightList.getAcList())
             geo3D.createPlane(planesGroup, String.valueOf(f.Id),f.Lat, f.Long, f.Trak, planesMaterial, scalePlane);
-        System.err.println(scalePlane);
     }
 
 
