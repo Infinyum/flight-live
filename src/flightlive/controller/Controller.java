@@ -130,7 +130,7 @@ public class Controller implements Initializable {
 
         // When clicking on a button
         btnGo.setOnAction(event -> executeRequest(planesGroup, citiesGroup));
-        btnClear.setOnAction(event -> clear(planesGroup, citiesGroup, pathGroup));
+        btnClear.setOnAction(event -> clear(planesGroup, citiesGroup, pathGroup, radiusGroup));
 
         // When changing the color
         cpDepAirport.setOnAction(event -> airportsDepMaterial.setDiffuseColor(cpDepAirport.getValue()));
@@ -186,19 +186,35 @@ public class Controller implements Initializable {
         });
 
         earthGroup.setOnMouseClicked(event -> {
-            PickResult res = event.getPickResult();
-            Point3D p = res.getIntersectedPoint();
-            double lat = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getY())) + 0.2f;
-            // First case issue: lon between 0° and 180°
-            double lon = java.lang.Math.toDegrees(java.lang.Math.acos(res.getIntersectedPoint().getZ()
-                    / java.lang.Math.cos(java.lang.Math.asin(-res.getIntersectedPoint().getY())))) - 2.8f;
+            if (event.isControlDown()) {
+                PickResult res = event.getPickResult();
+                Point3D p = res.getIntersectedPoint();
+                double lat = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getY())) + 0.2f;
+                // First case issue: lon between 0° and 180°
+                double lon = java.lang.Math.toDegrees(java.lang.Math.acos(res.getIntersectedPoint().getZ()
+                        / java.lang.Math.cos(java.lang.Math.asin(-res.getIntersectedPoint().getY())))) - 2.8f;
 
-            // Second case issue: lon between -90° and 90°
-            //double lon = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getX()
-            //        / java.lang.Math.cos(java.lang.Math.asin(-p.getY())))) - 2.8f;
+                // Second case issue: lon between -90° and 90°
+                //double lon = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getX()
+                //        / java.lang.Math.cos(java.lang.Math.asin(-p.getY())))) - 2.8f;
 
-            //geo3D.displayTown(citiesGroup, "MON POINT", (float)lat, (float)lon, airportsDepMaterial);
-            geo3D.displayRadius(radiusGroup, 1, p);
+                //geo3D.displayTown(citiesGroup, "MON POINT", (float)lat, (float)lon, airportsDepMaterial);
+
+                citiesGroup.getChildren().clear(); planesGroup.getChildren().clear(); pathGroup.getChildren().clear();
+                radiusGroup.getChildren().clear();
+
+                geo3D.displayRadius(radiusGroup, 1, p);
+                try {
+                    currentFlightList = model.getFlightsAroundPosition(String.valueOf(lat), String.valueOf(lon), "200");
+                } catch (Exception e) {
+                    currentFlightList = null;
+                }
+                if (currentFlightList != null && currentFlightList.getAcList().length != 0) {
+                    // TODO: see why listview doesn't update
+                    updateListView(); // Updating the ListView with the list of flights
+                    updateEarth(planesGroup, citiesGroup); // Updating the earth
+                }
+            }
         });
     }
 
@@ -255,7 +271,7 @@ public class Controller implements Initializable {
      * @param planesGroup the group of planes
      * @param citiesGroup the group of cities
      */
-    private void clear(Group planesGroup, Group citiesGroup, Group pathGroup) {
+    private void clear(Group planesGroup, Group citiesGroup, Group pathGroup, Group radiusGroup) {
         cbxToAirport.getSelectionModel().clearSelection();
         cbxToAirport.getItems().clear();
 
@@ -288,6 +304,7 @@ public class Controller implements Initializable {
         citiesGroup.getChildren().clear();
         planesGroup.getChildren().clear();
         pathGroup.getChildren().clear();
+        radiusGroup.getChildren().clear();
         displayAirports(citiesGroup);
     }
 
@@ -346,6 +363,7 @@ public class Controller implements Initializable {
         // Resetting the whole interface
         planesGroup.getChildren().clear();
         citiesGroup.getChildren().clear();
+
         lvFlights.getItems().clear();
         flightLabel.setText("");
 
@@ -518,8 +536,10 @@ public class Controller implements Initializable {
         } else {
             ArrayList<String> icaos = new ArrayList<>();
             for (Flight f : currentFlightList.getAcList()) {
-                String temp = f.From.substring(0,4);
-                if (!icaos.contains(temp)) icaos.add(temp);
+                if (f.From != null) {
+                    String temp = f.From.substring(0,4);
+                    if (!icaos.contains(temp)) icaos.add(temp);
+                }
             }
             for (String icao : icaos) {
                 Airport temp = model.getAirportByIcao(icao);
@@ -538,8 +558,10 @@ public class Controller implements Initializable {
         } else {
             ArrayList<String> icaos = new ArrayList<>();
             for (Flight f : currentFlightList.getAcList()) {
-                String temp = f.To.substring(0,4);
-                if (!icaos.contains(temp)) icaos.add(temp);
+                if (f.To != null) {
+                    String temp = f.To.substring(0,4);
+                    if (!icaos.contains(temp)) icaos.add(temp);
+                }
             }
             for (String icao : icaos) {
                 Airport temp = model.getAirportByIcao(icao);
@@ -567,6 +589,7 @@ public class Controller implements Initializable {
                     lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), currentCityTo.getName()));
                 } else if (currentCityFrom == null && currentCityTo != null) {
                     Airport temp = model.getAirportByIcao(f.From.substring(0,4));
+
                     String departureCity;
                     if (temp == null) departureCity = "city not found";
                     else departureCity = temp.getCity().getName();
@@ -574,10 +597,25 @@ public class Controller implements Initializable {
                     lvFlights.getItems().add(f.toStringShort(departureCity, currentCityTo.getName()));
                 } else if (currentCityFrom != null && currentCityTo == null) {
                     Airport temp = model.getAirportByIcao(f.To.substring(0,4));
+
                     String arrivalCity;
                     if (temp == null) arrivalCity = "city not found";
                     else arrivalCity = temp.getCity().getName();
+
                     lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), arrivalCity));
+                } else {
+                    System.err.println(f.From);
+                    Airport temp = model.getAirportByIcao(f.From.substring(0,4));
+
+                    String departureCity;
+                    if (temp == null) departureCity = "city not found";
+                    else departureCity = temp.getCity().getName();
+
+                    String arrivalCity;
+                    if (temp == null) arrivalCity = "city not found";
+                    else arrivalCity = temp.getCity().getName();
+
+                    lvFlights.getItems().add(f.toStringShort(departureCity, arrivalCity));
                 }
             }
         } else
