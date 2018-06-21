@@ -38,14 +38,8 @@ public final class FlightLive {
      */
     public FlightLive() {
         countries = CSVParser.parseCSV();
-        if (countries != null) {
-            Collections.sort(countries, new Comparator<Country>() {
-                @Override
-                public int compare(Country c1, Country c2) {
-                    return c1.getName().compareTo(c2.getName());
-                }
-            });
-        }
+        if (countries != null)
+            countries.sort((c1, c2) -> c1.getName().compareTo(c2.getName()));
     }
 
 

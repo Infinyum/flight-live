@@ -5,9 +5,6 @@ import flightlive.geometry.Geometry3D;
 import flightlive.geometry.Position;
 import flightlive.model.*;
 
-import com.interactivemesh.jfx.importer.ImportException;
-import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point3D;
@@ -24,8 +21,6 @@ import javafx.stage.Modality;
 
 import java.net.URL;
 import java.util.*;
-
-import static javafx.scene.SceneAntialiasing.DISABLED;
 
 public class Controller implements Initializable {
     /* /////////////////////////////////////////////////////////////////////////////// */
@@ -83,7 +78,7 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         model = new FlightLive();                          // Creating the model
         Group root3D = new Group();                        // Groups the 3D objects within the pane
-        Group earthGroup = setEarth(paneEarth, root3D);    // Loading the earth
+        Group earthGroup = geo3D.setEarth(paneEarth, root3D);    // Loading the earth
         // Creating the group of planes
         Group planesGroup = new Group();
         earthGroup.getChildren().add(planesGroup);
@@ -189,6 +184,7 @@ public class Controller implements Initializable {
             }
         });
 
+
         // Request when clicking on the earth with the Ctrl key pressed down
         earthGroup.setOnMouseClicked(event -> {
             if (event.isControlDown()) {
@@ -246,6 +242,7 @@ public class Controller implements Initializable {
      * @param citiesGroup a group containing all the cities
      * @param pathGroup a group containing the currently selected flight's path
      * @param radiusGroup a group containing the sphere representing the radius
+     * @return -1 if an error occured, 0 if not
      */
     private int executeRadiusRequest(Group citiesGroup, Group planesGroup, Group pathGroup, Group radiusGroup, Point3D p) {
         // Clearing the interface
@@ -284,12 +281,14 @@ public class Controller implements Initializable {
      */
     private void displayAirports(Group citiesGroup) {
         ArrayList<Country> countries = model.getCountries();
+
         for (Country c : countries) {
             for (City ci : c.getCities()) {
                 for (Airport a : ci.getAirports()) {
                     double lat = a.getLatitude();
                     double lon = a.getLongitude();
-                    double scale = (txtfAirports.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfAirports.getText()) : 1);
+                    double scale = (txtfAirports.getText().matches("\\d+(\\.\\d+)?") ?
+                            Double.parseDouble(txtfAirports.getText()) : 1);
                     geo3D.displayTown(citiesGroup, a.getIcao(),
                             (float)lat, (float)lon, airportsArrMaterial, scale);
                 }
@@ -300,7 +299,7 @@ public class Controller implements Initializable {
 
     /**
      * Updates the selected ListView item based on the currently selected plane
-     * @return
+     * @return -1 if an error occured, 0 otherwise
      */
     private int updateListViewSelection() {
         for (int i = 0 ; i < lvFlights.getItems().size() ; i++) {
@@ -322,6 +321,7 @@ public class Controller implements Initializable {
      * @param citiesGroup the group of cities
      */
     private void clear(Group planesGroup, Group citiesGroup, Group pathGroup, Group radiusGroup) {
+        // Clearing the ComboBoxes
         cbxToAirport.getSelectionModel().clearSelection();
         cbxToAirport.getItems().clear();
 
@@ -340,8 +340,10 @@ public class Controller implements Initializable {
         cbxToCountry.getSelectionModel().clearSelection();
         cbxToCountry.getItems().clear();
 
-        initializeCountryCbx(); // Loading the countries list in the ComboBoxes
+        // Loading the countries list in the ComboBoxes
+        initializeCountryCbx();
 
+        // Clearing the currently stored values
         currentCountryFrom = null;
         currentCountryTo = null;
         currentCityFrom = null;
@@ -349,6 +351,7 @@ public class Controller implements Initializable {
         currentAirportFrom = null;
         currentAirportTo = null;
 
+        // Resetting the remaining interface
         lvFlights.getItems().clear();
         flightLabel.setText("");
         citiesGroup.getChildren().clear();
@@ -373,9 +376,9 @@ public class Controller implements Initializable {
             String selectedFlightId = selectedItem.split(" ")[1];
             // Updating the label
             currentFlight = currentFlightList.getFlightById(Integer.parseInt(selectedFlightId));
-            if (currentFlight != null) {
+            if (currentFlight != null)
                 flightLabel.setText(currentFlight.toString());
-            } else
+            else
                 flightLabel.setText("");
 
             if (currentPlane != null)
@@ -384,9 +387,8 @@ public class Controller implements Initializable {
             // Picking the plane
             for (Node n : planesGroup.getChildren()) {
                 if (n instanceof Fx3DGroup) {
-                    if (n.getId().equals(selectedFlightId)) {
+                    if (n.getId().equals(selectedFlightId))
                         currentPlane = (Fx3DGroup)n;
-                    }
                 }
             }
 
@@ -405,6 +407,7 @@ public class Controller implements Initializable {
      * @param citiesGroup a group containing all the cities
      * @param pathGroup a group containing the currently selected flight's path
      * @param radiusGroup a group containing the sphere representing the radius
+     * @return -1 if an error occured, 0 otherwise
      */
     private int executeRequest(Group planesGroup, Group citiesGroup, Group pathGroup, Group radiusGroup) {
 
@@ -580,10 +583,13 @@ public class Controller implements Initializable {
      * @param citiesGroup a group containing all the cities
      */
     private void updateEarth(Group planesGroup, Group citiesGroup) {
-        double scaleTown = (txtfAirports.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfAirports.getText()) : 1);
-        double scalePlane = (txtfFlights.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfFlights.getText()) : 1);
+        double scaleTown = (txtfAirports.getText().matches("\\d+(\\.\\d+)?") ?
+                Double.parseDouble(txtfAirports.getText()) : 1);
+        double scalePlane = (txtfFlights.getText().matches("\\d+(\\.\\d+)?") ?
+                Double.parseDouble(txtfFlights.getText()) : 1);
 
         citiesGroup.getChildren().clear();
+
         // If the current departure city is given
         if (currentCityFrom != null) {
             double latCityFrom = currentCityFrom.getAirports().get(0).getLatitude();
@@ -596,15 +602,15 @@ public class Controller implements Initializable {
             for (Flight f : currentFlightList.getAcList()) {
                 if (f.From != null) {
                     String temp = f.From.substring(0,4);
-                    if (!icaos.contains(temp)) icaos.add(temp);
+                    if (!icaos.contains(temp))
+                        icaos.add(temp);
                 }
             }
             for (String icao : icaos) {
                 Airport temp = model.getAirportByIcao(icao);
-                if (temp != null) {
+                if (temp != null)
                     geo3D.displayTown(citiesGroup, temp.getName(), (float)temp.getLatitude(),
                             (float)temp.getLongitude(), airportsDepMaterial, scaleTown);
-                }
             }
         }
         // If the current arrival city is given
@@ -618,15 +624,15 @@ public class Controller implements Initializable {
             for (Flight f : currentFlightList.getAcList()) {
                 if (f.To != null) {
                     String temp = f.To.substring(0,4);
-                    if (!icaos.contains(temp)) icaos.add(temp);
+                    if (!icaos.contains(temp))
+                        icaos.add(temp);
                 }
             }
             for (String icao : icaos) {
                 Airport temp = model.getAirportByIcao(icao);
-                if (temp != null) {
+                if (temp != null)
                     geo3D.displayTown(citiesGroup, temp.getName(), (float)temp.getLatitude(),
                             (float)temp.getLongitude(), airportsArrMaterial, scaleTown);
-                }
             }
         }
 
@@ -641,18 +647,23 @@ public class Controller implements Initializable {
      */
     private void updateListView() {
         if (currentFlightList != null) {
+            // Clearing the ListView
             lvFlights.getItems().clear();
+
             for (Flight f : currentFlightList.getAcList()) {
-                if (currentCityFrom != null && currentCityTo != null) {
+                // Both the current departure and arrival cities are given
+                if (currentCityFrom != null && currentCityTo != null)
                     lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), currentCityTo.getName()));
-                } else if (currentCityFrom == null && currentCityTo != null) {
+                // Only the current arrival city is given
+                else if (currentCityFrom == null && currentCityTo != null) {
                     Airport temp = model.getAirportByIcao(f.From.substring(0,4));
 
                     String departureCity;
-                    if (temp == null) departureCity = "city not found";
+                    if (temp == null) departureCity = "unknown";
                     else departureCity = temp.getCity().getName();
 
                     lvFlights.getItems().add(f.toStringShort(departureCity, currentCityTo.getName()));
+                // Only the current departure city is given
                 } else if (currentCityFrom != null && currentCityTo == null) {
                     Airport temp = model.getAirportByIcao(f.To.substring(0,4));
 
@@ -661,9 +672,11 @@ public class Controller implements Initializable {
                     else arrivalCity = temp.getCity().getName();
 
                     lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), arrivalCity));
+                // No city is given
                 } else {
                     String departureCity;
                     String arrivalCity;
+
                     if (f.From != null) {
                         Airport temp = model.getAirportByIcao(f.From.substring(0,4));
 
@@ -687,7 +700,7 @@ public class Controller implements Initializable {
 
 
     /**
-     * Creates a dialog box specifically for the error encountered
+     * Creates a dialog box to inform the user that there is a lack of information
      */
     private void createDialogBox() {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -705,9 +718,12 @@ public class Controller implements Initializable {
     private void updateCurrentCityFrom() {
         // Retrieving current city
         currentCityFrom = currentCountryFrom.getCityByName(cbxFromCity.getValue());
-        currentAirportFrom = null;    // Resetting current value
+        // Resetting current value
+        currentAirportFrom = null;
+
         if (currentCityFrom != null) {
-            cbxFromAirport.getItems().clear();    // Clearing the current list
+            // Clearing the current list
+            cbxFromAirport.getItems().clear();
             for (Airport a : currentCityFrom.getAirports())
                 cbxFromAirport.getItems().add(a.getName());
         } else
@@ -721,9 +737,12 @@ public class Controller implements Initializable {
     private void updateCurrentCityTo() {
         // Retrieving current city
         currentCityTo = currentCountryTo.getCityByName(cbxToCity.getValue());
-        currentAirportTo = null;    // Resetting current value
+        // Resetting current value
+        currentAirportTo = null;
+
         if (currentCityTo != null) {
-            cbxToAirport.getItems().clear();    // Clearing the current list
+            // Clearing the current list
+            cbxToAirport.getItems().clear();
             for (Airport a : currentCityTo.getAirports())
                 cbxToAirport.getItems().add(a.getName());
         } else
@@ -737,18 +756,15 @@ public class Controller implements Initializable {
     private void updateCurrentCountryTo() {
         // Retrieving current country
         currentCountryTo = model.getCountryByName(cbxToCountry.getValue());
-        currentCityTo = null; currentAirportTo = null; // Resetting current values
+        // Resetting current values
+        currentCityTo = null; currentAirportTo = null;
+
         if (currentCountryTo != null) {
             cbxToCity.getItems().clear();   // Clearing the current list
 
             // Sorting cities
             ArrayList<City> cities = currentCountryTo.getCities();
-            Collections.sort(cities, new Comparator<City>() {
-                @Override
-                public int compare(City c1, City c2) {
-                    return c1.getName().compareTo(c2.getName());
-                }
-            });
+            cities.sort((c1, c2) -> c1.getName().compareTo(c2.getName()));
 
             // Adding the new cities
             for (City c : cities)
@@ -764,18 +780,15 @@ public class Controller implements Initializable {
     private void updateCurrentCountryFrom() {
         // Retrieving current country
         currentCountryFrom = model.getCountryByName(cbxFromCountry.getValue());
-        currentCityFrom = null; currentAirportFrom = null; // Resetting current values
+        // Resetting current values
+        currentCityFrom = null; currentAirportFrom = null;
+
         if (currentCountryFrom != null) {
             cbxFromCity.getItems().clear();   // Clearing the current list
 
             // Sorting cities
             ArrayList<City> cities = currentCountryFrom.getCities();
-            Collections.sort(cities, new Comparator<City>() {
-                @Override
-                public int compare(City c1, City c2) {
-                    return c1.getName().compareTo(c2.getName());
-                }
-            });
+            cities.sort((c1, c2) -> c1.getName().compareTo(c2.getName()));
 
             // Adding the new cities
             for (City c : cities)
@@ -794,41 +807,5 @@ public class Controller implements Initializable {
             cbxFromCountry.getItems().add(c.getName());
             cbxToCountry.getItems().add(c.getName());
         }
-    }
-
-
-    /**
-     * Adds the earth 3D object on the pane
-     * @param pane the pane in which the earth is placed
-     * @param root3D the group containing all the 3D
-     */
-    private Group setEarth(Pane pane, Group root3D) {
-        // Load geometry
-        ObjModelImporter objImporter = new ObjModelImporter();
-        try {
-            URL modelUrl = this.getClass().getResource("/flightlive/res/Earth/earth.obj");
-            objImporter.read(modelUrl);
-        } catch(ImportException e) {
-            System.out.println(e.getMessage());
-        }
-        MeshView[] meshViews = objImporter.getImport();
-        Group earth = new Group(meshViews);
-        root3D.getChildren().add(earth);
-
-        // Add a camera group
-        PerspectiveCamera camera = new PerspectiveCamera(true);
-        new CameraManager(camera, pane, root3D);
-
-        // Add ambient light
-        AmbientLight ambientLight = new AmbientLight(Color.WHITE);
-        ambientLight.getScope().addAll(root3D);
-        root3D.getChildren().add(ambientLight);
-
-        // Creating a subscene
-        SubScene subScene = new SubScene(root3D, 500, 500, true, DISABLED);
-        subScene.setCamera(camera);
-        subScene.setFill(Color.rgb(248, 249, 250));
-        pane.getChildren().add(subScene);
-        return earth;
     }
 }

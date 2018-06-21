@@ -1,12 +1,18 @@
 package flightlive.geometry;
 
+import flightlive.controller.CameraManager;
 import flightlive.model.Flight;
 
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 
 import javafx.geometry.Point3D;
+import javafx.scene.AmbientLight;
 import javafx.scene.Group;
+import javafx.scene.PerspectiveCamera;
+import javafx.scene.SubScene;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
@@ -15,6 +21,8 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
 import java.net.URL;
+
+import static javafx.scene.SceneAntialiasing.DISABLED;
 
 
 public class Geometry3D {
@@ -94,6 +102,43 @@ public class Geometry3D {
         plane.setId(id);
 
         planeGroup.getChildren().add(plane);
+    }
+
+
+    /**
+     * Adds the earth 3D object on the pane
+     * @param pane the pane in which the earth is placed
+     * @param root3D the group containing all the 3D
+     * @return the group containing the earth
+     */
+    public Group setEarth(Pane pane, Group root3D) {
+        // Load geometry
+        ObjModelImporter objImporter = new ObjModelImporter();
+        try {
+            URL modelUrl = this.getClass().getResource("/flightlive/res/Earth/earth.obj");
+            objImporter.read(modelUrl);
+        } catch(ImportException e) {
+            System.out.println(e.getMessage());
+        }
+        MeshView[] meshViews = objImporter.getImport();
+        Group earth = new Group(meshViews);
+        root3D.getChildren().add(earth);
+
+        // Add a camera group
+        PerspectiveCamera camera = new PerspectiveCamera(true);
+        new CameraManager(camera, pane, root3D);
+
+        // Add ambient light
+        AmbientLight ambientLight = new AmbientLight(Color.WHITE);
+        ambientLight.getScope().addAll(root3D);
+        root3D.getChildren().add(ambientLight);
+
+        // Creating a subscene
+        SubScene subScene = new SubScene(root3D, 500, 500, true, DISABLED);
+        subScene.setCamera(camera);
+        subScene.setFill(Color.rgb(248, 249, 250));
+        pane.getChildren().add(subScene);
+        return earth;
     }
 
 
