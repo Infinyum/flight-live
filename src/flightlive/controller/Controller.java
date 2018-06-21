@@ -15,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.PickResult;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
@@ -43,6 +44,7 @@ public class Controller implements Initializable {
     @FXML private Button btnGo;
     @FXML private Button btnClear;
     @FXML private Pane paneEarth;
+    @FXML private MenuItem helpMenu;
     @FXML private ColorPicker cpDepAirport;
     @FXML private ColorPicker cpArrAirport;
     @FXML private ColorPicker cpFlight;
@@ -79,9 +81,12 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        model = new FlightLive();                          // Creating the model
-        Group root3D = new Group();                        // Groups the 3D objects within the pane
-        Group earthGroup = geo3D.setEarth(paneEarth, root3D);    // Loading the earth
+        // Creating the model
+        model = new FlightLive();
+        // Groups the 3D objects within the pane
+        Group root3D = new Group();
+        // Loading the earth
+        Group earthGroup = geo3D.setEarth(paneEarth, root3D);
         // Creating the group of planes
         Group planesGroup = new Group();
         earthGroup.getChildren().add(planesGroup);
@@ -108,6 +113,10 @@ public class Controller implements Initializable {
 
         initializeCountryCbx(); // Loading the countries list in the ComboBoxes
         displayAirports(citiesGroup);
+
+        helpDialog();
+
+        helpMenu.setOnAction(event -> helpDialog());
 
         // Updating the ComboBoxes of cities according to the selected country
         cbxToCountry.setOnAction(event -> updateCurrentCountryTo());
@@ -188,7 +197,6 @@ public class Controller implements Initializable {
             }
         });
 
-
         // Request when clicking on the earth with the Ctrl key pressed down
         earthGroup.setOnMouseClicked(event -> {
             if (event.isControlDown()) {
@@ -201,7 +209,6 @@ public class Controller implements Initializable {
                             p, currentRadius);
             }
         });
-
 
         // Event to change size of Airports
         txtfAirports.textProperty().addListener(event -> {
@@ -261,6 +268,7 @@ public class Controller implements Initializable {
         lvFlights.getItems().clear();
         flightLabel.setText("");
 
+        // Cross product to have the right size
         float sphereRadius = (radius / 6365.f) * .9f;
 
         // Displaying the sphere representing the radius
@@ -334,15 +342,19 @@ public class Controller implements Initializable {
         // Clearing the ComboBoxes
         cbxToAirport.getSelectionModel().clearSelection();
         cbxToAirport.getItems().clear();
+        cbxToAirport.setDisable(true);
 
         cbxFromAirport.getSelectionModel().clearSelection();
         cbxFromAirport.getItems().clear();
+        cbxFromAirport.setDisable(true);
 
         cbxFromCity.getSelectionModel().clearSelection();
         cbxFromCity.getItems().clear();
+        cbxFromCity.setDisable(true);
 
         cbxToCity.getSelectionModel().clearSelection();
         cbxToCity.getItems().clear();
+        cbxToCity.setDisable(true);
 
         cbxFromCountry.getSelectionModel().clearSelection();
         cbxFromCountry.getItems().clear();
@@ -711,6 +723,24 @@ public class Controller implements Initializable {
 
 
     /**
+     * A little pop-up window with some basic instructions
+     */
+    public void helpDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Help");
+        alert.setHeaderText("Welcome to this Flight Live JavaFX application");
+
+        alert.setContentText("Here are a few instructions about how to use the application:\n"
+                + "    - you can select departure and arrival places using the drop-down menus\n"
+                + "    - if you click on the globe while pressing the Ctrl key, you can look for " +
+                "flights within a certain radius");
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alert.initModality(Modality.APPLICATION_MODAL);
+        alert.showAndWait();
+    }
+
+
+    /**
      * Shows a dialog box which prompts the user to enter a radius value
      * @return -1 if there is an error or if the user cancel, the radius value otherwise
      */
@@ -774,6 +804,7 @@ public class Controller implements Initializable {
         currentCityFrom = currentCountryFrom.getCityByName(cbxFromCity.getValue());
         // Resetting current value
         currentAirportFrom = null;
+        cbxFromAirport.setDisable(false);
 
         if (currentCityFrom != null) {
             // Clearing the current list
@@ -793,6 +824,7 @@ public class Controller implements Initializable {
         currentCityTo = currentCountryTo.getCityByName(cbxToCity.getValue());
         // Resetting current value
         currentAirportTo = null;
+        cbxToAirport.setDisable(false);
 
         if (currentCityTo != null) {
             // Clearing the current list
@@ -812,6 +844,7 @@ public class Controller implements Initializable {
         currentCountryTo = model.getCountryByName(cbxToCountry.getValue());
         // Resetting current values
         currentCityTo = null; currentAirportTo = null;
+        cbxToCity.setDisable(false);
 
         if (currentCountryTo != null) {
             cbxToCity.getItems().clear();   // Clearing the current list
@@ -836,6 +869,7 @@ public class Controller implements Initializable {
         currentCountryFrom = model.getCountryByName(cbxFromCountry.getValue());
         // Resetting current values
         currentCityFrom = null; currentAirportFrom = null;
+        cbxFromCity.setDisable(false);
 
         if (currentCountryFrom != null) {
             cbxFromCity.getItems().clear();   // Clearing the current list
@@ -861,5 +895,9 @@ public class Controller implements Initializable {
             cbxFromCountry.getItems().add(c.getName());
             cbxToCountry.getItems().add(c.getName());
         }
+        cbxFromCity.setDisable(true);
+        cbxToCity.setDisable(true);
+        cbxFromAirport.setDisable(true);
+        cbxToAirport.setDisable(true);
     }
 }
