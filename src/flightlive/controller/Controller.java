@@ -1,10 +1,13 @@
 package flightlive.controller;
 
-import com.interactivemesh.jfx.importer.ImportException;
-import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
 import flightlive.geometry.Fx3DGroup;
 import flightlive.geometry.Geometry3D;
+import flightlive.geometry.Position;
 import flightlive.model.*;
+
+import com.interactivemesh.jfx.importer.ImportException;
+import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point3D;
@@ -12,14 +15,12 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.PickResult;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.stage.Modality;
-import javafx.stage.Popup;
 
 import java.net.URL;
 import java.util.*;
@@ -32,6 +33,7 @@ public class Controller implements Initializable {
     /* /////////////////////////////////////////////////////////////////////////////// */
 
     private FlightLive model;
+
     @FXML private ComboBox<String> cbxFromCountry;
     @FXML private ComboBox<String> cbxFromCity;
     @FXML private ComboBox<String> cbxFromAirport;
@@ -62,20 +64,20 @@ public class Controller implements Initializable {
     private Flight currentFlight = null;
     private Fx3DGroup currentPlane = null;
 
+    // Materials are also stored to avoid redundancy
     private PhongMaterial planesMaterial;
     private PhongMaterial airportsDepMaterial;
     private PhongMaterial airportsArrMaterial;
     private PhongMaterial pathMaterialLow;
     private PhongMaterial pathMaterialHigh;
 
-    // Used for 3D stuff
+    // Used for its 3D methods
     private Geometry3D geo3D = new Geometry3D();
 
 
     /* /////////////////////////////////////////////////////////////////////////////// */
     /* ---------------------------------- METHODS ------------------------------------ */
     /* /////////////////////////////////////////////////////////////////////////////// */
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -131,10 +133,10 @@ public class Controller implements Initializable {
         });
 
         // When clicking on a button
-        btnGo.setOnAction(event -> executeRequest(planesGroup, citiesGroup));
+        btnGo.setOnAction(event -> executeRequest(planesGroup, citiesGroup, pathGroup, radiusGroup));
         btnClear.setOnAction(event -> clear(planesGroup, citiesGroup, pathGroup, radiusGroup));
 
-        // When changing the color
+        // When changing the color with the different ColorPickers
         cpDepAirport.setOnAction(event -> airportsDepMaterial.setDiffuseColor(cpDepAirport.getValue()));
         cpArrAirport.setOnAction(event -> airportsArrMaterial.setDiffuseColor(cpArrAirport.getValue()));
         cpFlight.setOnAction(event -> planesMaterial.setDiffuseColor(cpFlight.getValue()));
@@ -187,44 +189,22 @@ public class Controller implements Initializable {
             }
         });
 
+        // Request when clicking on the earth with the Ctrl key pressed down
         earthGroup.setOnMouseClicked(event -> {
             if (event.isControlDown()) {
                 PickResult res = event.getPickResult();
                 Point3D p = res.getIntersectedPoint();
-                double lat = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getY())) + 0.2f;
-                // First case issue: lon between 0° and 180°
-                double lon = java.lang.Math.toDegrees(java.lang.Math.acos(res.getIntersectedPoint().getZ()
-                        / java.lang.Math.cos(java.lang.Math.asin(-res.getIntersectedPoint().getY())))) - 2.8f;
-
-                // Second case issue: lon between -90° and 90°
-                //double lon = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getX()
-                //        / java.lang.Math.cos(java.lang.Math.asin(-p.getY())))) - 2.8f;
-
-                //geo3D.displayTown(citiesGroup, "MON POINT", (float)lat, (float)lon, airportsDepMaterial);
-
-                citiesGroup.getChildren().clear(); planesGroup.getChildren().clear(); pathGroup.getChildren().clear();
-                radiusGroup.getChildren().clear();
-
-                geo3D.displayRadius(radiusGroup, 1, p);
-                try {
-                    currentFlightList = model.getFlightsAroundPosition(String.valueOf(lat), String.valueOf(lon), "200");
-                } catch (Exception e) {
-                    currentFlightList = null;
-                }
-                if (currentFlightList != null && currentFlightList.getAcList().length != 0) {
-                    // TODO: see why listview doesn't update
-                    updateListView(); // Updating the ListView with the list of flights
-                    updateEarth(planesGroup, citiesGroup); // Updating the earth
-                }
+                executeRadiusRequest(citiesGroup, planesGroup, pathGroup, radiusGroup, p);
             }
         });
 
+
         // Event to change size of Airports
         txtfAirports.textProperty().addListener(event -> {
-            if(txtfAirports.getText().matches("\\d+(\\.\\d+)?")) {
+            if (txtfAirports.getText().matches("\\d+(\\.\\d+)?")) {
                 Double sc = Double.parseDouble(txtfAirports.getText());
-                for(Node node : citiesGroup.getChildren()) {
-                    if(node instanceof Sphere) {
+                for (Node node : citiesGroup.getChildren()) {
+                    if (node instanceof Sphere) {
                         ((Sphere) node).setScaleX(sc);
                         ((Sphere) node).setScaleY(sc);
                         ((Sphere) node).setScaleZ(sc);
@@ -234,25 +214,25 @@ public class Controller implements Initializable {
         });
 
         // Event to change size of Planes
-        txtfFlights.textProperty().addListener(event-> {
-            if(txtfFlights.getText().matches("\\d+(\\.\\d+)?")) {
+        txtfFlights.textProperty().addListener(event -> {
+            if (txtfFlights.getText().matches("\\d+(\\.\\d+)?")) {
                 Double sc = Double.parseDouble(txtfFlights.getText());
-                for(Node node : planesGroup.getChildren()) {
-                    if(node instanceof Fx3DGroup)
+                for (Node node : planesGroup.getChildren()) {
+                    if (node instanceof Fx3DGroup)
                         ((Fx3DGroup) node).set3DScale(sc);
                 }
 
-                if(currentPlane != null)
+                if (currentPlane != null)
                     currentPlane.set3DScale(sc + 2.0);
             }
         });
 
         // Event to change size of Path
         txtfPath.textProperty().addListener(event -> {
-            if(txtfPath.getText().matches("\\d+(\\.\\d+)?")) {
+            if (txtfPath.getText().matches("\\d+(\\.\\d+)?")) {
                 Double sc = Double.parseDouble(txtfPath.getText());
-                for(Node node : pathGroup.getChildren()) {
-                    if(node instanceof Cylinder)
+                for (Node node : pathGroup.getChildren()) {
+                    if (node instanceof Cylinder)
                         ((Cylinder) node).setRadius(0.005f * sc);
                 }
             }
@@ -260,14 +240,42 @@ public class Controller implements Initializable {
     }
 
 
-    /*private void askRadius(double lat, double lon, Group citiesGroup, Group planesGroup) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setContentText("In which radius do you want to search for the flights ?");
-        alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
-        System.err.println(alert.showAndWait().get());
+    /**
+     * Executes the request regarding the radius
+     * @param planesGroup a group containing all the planes
+     * @param citiesGroup a group containing all the cities
+     * @param pathGroup a group containing the currently selected flight's path
+     * @param radiusGroup a group containing the sphere representing the radius
+     */
+    private int executeRadiusRequest(Group citiesGroup, Group planesGroup, Group pathGroup, Group radiusGroup, Point3D p) {
+        // Clearing the interface
+        citiesGroup.getChildren().clear();
+        planesGroup.getChildren().clear();
+        pathGroup.getChildren().clear();
+        radiusGroup.getChildren().clear();
+        lvFlights.getItems().clear();
+        flightLabel.setText("");
 
-        // SEE ALSO: Popup class, DialogPane class
-    }*/
+        // Displaying the sphere representing the radius
+        geo3D.displayRadius(radiusGroup, 1, p);
+        // Retrieving the corresponding latitude and longitude
+        Position pos = geo3D.coord3dToGeoCoord(p);
+
+        // Making the request
+        try {
+            currentFlightList = model.getFlightsAroundPosition(pos.getLatitude(), pos.getLongitude(), 200);
+        } catch (Exception e) {
+            currentFlightList = null;
+            return -1;
+        }
+
+        if (currentFlightList == null || currentFlightList.getAcList().length == 0)
+            return -1;
+
+        updateListView(); // Updating the ListView with the list of flights
+        updateEarth(planesGroup, citiesGroup); // Updating the earth
+        return 0;
+    }
 
 
     /**
@@ -395,8 +403,10 @@ public class Controller implements Initializable {
      * for an airport if no airport is selected)
      * @param planesGroup a group containing all the planes
      * @param citiesGroup a group containing all the cities
+     * @param pathGroup a group containing the currently selected flight's path
+     * @param radiusGroup a group containing the sphere representing the radius
      */
-    private int executeRequest(Group planesGroup, Group citiesGroup) {
+    private int executeRequest(Group planesGroup, Group citiesGroup, Group pathGroup, Group radiusGroup) {
 
         // Not enough information given
         if (currentCityFrom == null && currentCityTo == null) {
@@ -406,6 +416,8 @@ public class Controller implements Initializable {
         // Resetting the whole interface
         planesGroup.getChildren().clear();
         citiesGroup.getChildren().clear();
+        pathGroup.getChildren().clear();
+        radiusGroup.getChildren().clear();
 
         lvFlights.getItems().clear();
         flightLabel.setText("");
@@ -650,16 +662,21 @@ public class Controller implements Initializable {
 
                     lvFlights.getItems().add(f.toStringShort(currentCityFrom.getName(), arrivalCity));
                 } else {
-                    System.err.println(f.From);
-                    Airport temp = model.getAirportByIcao(f.From.substring(0,4));
-
                     String departureCity;
-                    if (temp == null) departureCity = "city not found";
-                    else departureCity = temp.getCity().getName();
-
                     String arrivalCity;
-                    if (temp == null) arrivalCity = "city not found";
-                    else arrivalCity = temp.getCity().getName();
+                    if (f.From != null) {
+                        Airport temp = model.getAirportByIcao(f.From.substring(0,4));
+
+                        if (temp == null) departureCity = "unknown";
+                        else departureCity = temp.getCity().getName();
+
+                        if (temp == null) arrivalCity = "unknown";
+                        else arrivalCity = temp.getCity().getName();
+                    // In this case, the field is empty
+                    } else {
+                        departureCity = "unknown";
+                        arrivalCity = "unknown";
+                    }
 
                     lvFlights.getItems().add(f.toStringShort(departureCity, arrivalCity));
                 }

@@ -1,11 +1,12 @@
 package flightlive.geometry;
 
+import flightlive.model.Flight;
+
 import com.interactivemesh.jfx.importer.ImportException;
 import com.interactivemesh.jfx.importer.obj.ObjModelImporter;
-import flightlive.model.Flight;
+
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
@@ -14,6 +15,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
 import java.net.URL;
+
 
 public class Geometry3D {
     /* /////////////////////////////////////////////////////////////////////////////// */
@@ -47,9 +49,18 @@ public class Geometry3D {
         return line;
     }
 
-    // TODO: javadoc
-    public void createPlane(Group planeGroup, String id, float latitude, float longitude, float angle, PhongMaterial material, double scale) {
 
+    /**
+     * Adds a plane to planeGroup based on the geometry plane.obj
+     * @param planeGroup group in which to add the plane
+     * @param id id of the plane which corresponds to the flight's id
+     * @param latitude current latitude of the plane
+     * @param longitude current longitude of the plane
+     * @param angle current angle of the plane
+     * @param material material used to color the plane
+     * @param scale value to adjust the plane's size
+     */
+    public void createPlane(Group planeGroup, String id, float latitude, float longitude, float angle, PhongMaterial material, double scale) {
         // Load geometry
         ObjModelImporter planeImporter = new ObjModelImporter();
         try {
@@ -60,32 +71,38 @@ public class Geometry3D {
         }
         MeshView[] planeMeshViews = planeImporter.getImport();
 
-        for (MeshView mv : planeMeshViews) {
+        // Setting the material
+        for (MeshView mv : planeMeshViews)
             mv.setMaterial(material);
-        }
 
         Fx3DGroup planeScale = new Fx3DGroup(planeMeshViews);
         Fx3DGroup planeOffset = new Fx3DGroup(planeScale);
         Fx3DGroup plane = new Fx3DGroup(planeOffset);
-        plane.setId(id);
 
         Point3D position = geoCoordTo3dCoord(latitude, longitude);
-
+        // Transformations on the object
         planeScale.set3DScale(0.015);
         planeOffset.set3DTranslate(0, -0.01, 0);
         planeOffset.set3DRotate(0, 180 + angle, 0);
+
         plane.set3DTranslate(position.getX(),position.getY(),position.getZ());
         plane.set3DRotate(
                 -java.lang.Math.toDegrees(java.lang.Math.asin(position.getY())) - 90,
                 java.lang.Math.toDegrees(java.lang.Math.atan2(position.getX(), position.getZ())),
                 0);
-
         plane.set3DScale(scale);
+        plane.setId(id);
 
         planeGroup.getChildren().add(plane);
     }
 
 
+    /**
+     * Conversion from latitude and longitude to 3D xyz coordinates
+     * @param lat a given latitude
+     * @param lon a given longitude
+     * @return a matching point in the 3D space
+     */
     public Point3D geoCoordTo3dCoord(float lat, float lon) {
         float lat_cor = lat + TEXTURE_LAT_OFFSET;
         float lon_cor = lon + TEXTURE_LON_OFFSET;
@@ -98,34 +115,66 @@ public class Geometry3D {
     }
 
 
-    public void coord3dToGeoCoord(Point3D p) {
+    /**
+     * Conversion from 3D xyz coordinates to latitude and longitude on the globe
+     * @param p a given point in 3D space
+     * @return the corresponding latitude and longitude using the Position class
+     */
+    public Position coord3dToGeoCoord(Point3D p) {
         double lat_cor = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getY()));
         float lat = (float)lat_cor - TEXTURE_LAT_OFFSET;
-        double lon_cor = java.lang.Math.toDegrees(java.lang.Math.acos(p.getZ() / java.lang.Math.cos(java.lang.Math.asin(-p.getY()))));
-        float lon = (float)lon_cor - TEXTURE_LON_OFFSET;
-        System.err.println("LATITUDE: " + lat);
-        System.err.println("LONGITUDE: " + lon);
 
+        // First case issue: longitude between 0° and 180° => half the globe
+        double lon_cor = java.lang.Math.toDegrees(java.lang.Math.acos(p.getZ()
+                / java.lang.Math.cos(java.lang.Math.asin(-p.getY()))));
+
+        // Second case issue: longitude between -90° and 90° => half the globe too
+        //double lon_cor = java.lang.Math.toDegrees(java.lang.Math.asin(-p.getX()
+        //        / java.lang.Math.cos(java.lang.Math.asin(-p.getY()))));
+
+        float lon = (float)lon_cor - TEXTURE_LON_OFFSET;
+
+        return new Position(lat, lon);
     }
 
 
+    /**
+     * Adds a city (understand sphere) in the given parent group
+     * @param parent a group in which to add the sphere
+     * @param name name of the city
+     * @param latitude latitude of the city
+     * @param longitude longitude of the city
+     * @param material material to customize the sphere
+     * @param scale size of the sphere
+     */
     public void displayTown(Group parent, String name, float latitude, float longitude, PhongMaterial material, double scale) {
         Sphere sphere = new Sphere(0.002);
-        sphere.setId(name);
-        sphere.setMaterial(material);
         Point3D city = geoCoordTo3dCoord(latitude, longitude);
+
+        // Transformations on the sphere
         sphere.setTranslateX(city.getX());
         sphere.setTranslateY(city.getY());
         sphere.setTranslateZ(city.getZ());
-
         sphere.setScaleX(scale);
         sphere.setScaleY(scale);
         sphere.setScaleZ(scale);
+        sphere.setMaterial(material);
+
+        sphere.setId(name);
 
         parent.getChildren().add(sphere);
     }
 
 
+    /**
+     * Displays the trajectory of the given flight
+     * @param flight a given flight
+     * @param plane the corresponding plane object
+     * @param pathGroup group in which to add the trajectory shapes
+     * @param materialL material for low speed
+     * @param materialH material for higher speed
+     * @param scale size of the path
+     */
     public void displayPath(Flight flight, Fx3DGroup plane, Group pathGroup, PhongMaterial materialL, PhongMaterial materialH, double scale) {
         Cylinder tmp;
         Point3D posOrigin = null, posTarget = null;
@@ -137,13 +186,14 @@ public class Geometry3D {
         // Create the path
         pathGroup.getChildren().clear();
         double[] posHistory = flight.getCot();
-        if(posHistory != null) {
+
+        if (posHistory != null) {
             for (int i = 0; i < posHistory.length; i++) {
                 // We collected all information about one position of the history
                 if ((i + 1) % 4 == 0) {
                     posTarget = geoCoordTo3dCoord((float) lat, (float) lon);
                     // Create cylinder
-                    if(posOrigin != null) {
+                    if (posOrigin != null) {
                         tmp = createLine(posOrigin, posTarget, scale);
                         if (posHistory[i] < 400)
                             tmp.setMaterial(materialL);
@@ -162,7 +212,13 @@ public class Geometry3D {
         }
     }
 
-    // TODO: javadoc
+
+    /**
+     * Draws a sphere with a given radius located at a given point
+     * @param radiusGroup group in which to add the sphere
+     * @param radius radius of the sphere
+     * @param p a given point to set to center coordinates of the sphere
+     */
     public void displayRadius(Group radiusGroup, int radius, Point3D p) {
         Sphere radiusIndicator = new Sphere();
         radiusIndicator.setTranslateX(p.getX());

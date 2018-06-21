@@ -116,7 +116,7 @@ public final class FlightLive {
      * @param n: the name of the city to look for
      * @return the City object if found, null otherwise
      */
-    public City getCity(String n) {
+    public City getCityByName(String n) {
         for (Country c : countries) {
             for (City ci : c.getCities()) {
                 if (ci.getName().equals(n))
@@ -337,7 +337,7 @@ public final class FlightLive {
         FlightList res = new FlightList();
 
         // Research of the city object
-        City city = getCity(city_name);
+        City city = getCityByName(city_name);
         if (city == null)
             return null;
 
@@ -390,7 +390,7 @@ public final class FlightLive {
         FlightList res = new FlightList();
 
         // Research of the city object
-        City city = getCity(city_name);
+        City city = getCityByName(city_name);
         if(city == null)
             return null;
 
@@ -446,8 +446,8 @@ public final class FlightLive {
         FlightList res = new FlightList();
 
         // Research of the cities
-        City city1 = getCity(city1_name);
-        City city2 = getCity(city2_name);
+        City city1 = getCityByName(city1_name);
+        City city2 = getCityByName(city2_name);
         if (city1 == null || city2 == null)
             return null;
 
@@ -578,7 +578,7 @@ public final class FlightLive {
      * @return the list of flights matching the arguments
      * @throws Exception
      */
-    public FlightList getFlightsAroundPosition(String lat, String lon, String radius) throws Exception {
+    public FlightList getFlightsAroundPosition(float lat, float lon, int radius) throws Exception {
         String filter = "lat=" + lat + "&lng=" + lon + "&fDstL=0&fDstU=" + radius;
         FlightList flights = asynch_request(filter);
 
