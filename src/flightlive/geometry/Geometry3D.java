@@ -21,6 +21,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
 import java.net.URL;
+import java.util.ArrayList;
 
 import static javafx.scene.SceneAntialiasing.DISABLED;
 
@@ -219,18 +220,37 @@ public class Geometry3D {
      * @param materialL material for low speed
      * @param materialH material for higher speed
      * @param scale size of the path
+     * @return -1 if there is an error, 0 otherwise
      */
-    public void displayPath(Flight flight, Fx3DGroup plane, Group pathGroup, PhongMaterial materialL, PhongMaterial materialH, double scale) {
+    public int displayPath(Flight flight, Fx3DGroup plane, Group pathGroup, PhongMaterial materialL, PhongMaterial materialH, double scale, ArrayList<Position> pos) {
+        if (flight == null || plane == null || pos == null)
+            return -1;
+
         Cylinder tmp;
-        Point3D posOrigin = null, posTarget = null;
-        double lat = 0, lon = 0;
+        Point3D posOrigin = null, posTarget;
 
         // Change size of the plane object
         plane.set3DScale(2.0);
 
-        // Create the path
+        // Clearing the current path
         pathGroup.getChildren().clear();
-        double[] posHistory = flight.getCot();
+
+        // Creating the new path
+        for (Position p : pos) {
+            posTarget = geoCoordTo3dCoord(p.getLatitude(), p.getLongitude());
+            // Creating the cylinder
+            if (posOrigin != null) {
+                tmp = createLine(posOrigin, posTarget, scale);
+                if (p.getSpeed() < 400)
+                    tmp.setMaterial(materialL);
+                else
+                    tmp.setMaterial(materialH);
+                pathGroup.getChildren().add(tmp);
+            }
+            posOrigin = posTarget;
+        }
+
+        /*double[] posHistory = flight.getCot();
 
         if (posHistory != null) {
             for (int i = 0; i < posHistory.length; i++) {
@@ -254,7 +274,8 @@ public class Geometry3D {
                         lon = posHistory[i];
                 }
             }
-        }
+        }*/
+        return 0;
     }
 
 

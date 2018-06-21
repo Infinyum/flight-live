@@ -159,7 +159,8 @@ public class Controller implements Initializable {
                     flightLabel.setText(currentFlight.toString());
                     // Showing the path and making the plane bigger
                     double scale = (txtfPath.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfPath.getText()) : 1);
-                    geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialHigh, scale);
+                    geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow,
+                            pathMaterialHigh, scale, model.getFlightPositionHistory(currentFlight));
                     updateListViewSelection();
                 }
             }
@@ -393,7 +394,8 @@ public class Controller implements Initializable {
             }
 
             double scale = (txtfPath.getText().matches("\\d+(\\.\\d+)?") ? Double.parseDouble(txtfPath.getText()) : 1);
-            geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow, pathMaterialHigh, scale);
+            geo3D.displayPath(currentFlight, currentPlane, pathGroup, pathMaterialLow,
+                    pathMaterialHigh, scale, model.getFlightPositionHistory(currentFlight));
 
         } else
             flightLabel.setText("");

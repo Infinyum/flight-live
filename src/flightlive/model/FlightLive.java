@@ -1,5 +1,6 @@
 package flightlive.model;
 
+import flightlive.geometry.Position;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
@@ -563,6 +564,37 @@ public final class FlightLive {
             }
         }
     }
+
+
+    /**
+     * Returns an ArrayList of the position history of the given flight
+     * @param f the given flight
+     * @return an ArrayList of the positions
+     */
+    public ArrayList<Position> getFlightPositionHistory(Flight f) {
+        double[] posHistory = f.getCot();
+
+        if (posHistory == null)
+            return null;
+
+        double currentLat = 0, currentLon = 0, currentSpd = 0;
+        ArrayList<Position> result = new ArrayList<>();
+
+        // Getting the latitude and longitude
+        for (int i = 0; i < posHistory.length; i++) {
+            if (i % 4 == 0)
+                currentLat = posHistory[i];
+            else if (i % 4 == 1)
+                currentLon = posHistory[i];
+            else if ((i+1) % 4 == 0) {
+                currentSpd = posHistory[i];
+                result.add(new Position((float)currentLat, (float)currentLon, (float)currentSpd));
+            }
+        }
+
+        return result;
+    }
+
 
     /**
      * Get all the flights within a given radius around a given position
