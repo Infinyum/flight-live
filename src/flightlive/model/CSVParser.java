@@ -22,7 +22,7 @@ public final class CSVParser {
         ArrayList<Country> countries = new ArrayList<>();
 
         try {
-            FileReader file = new FileReader("deps/airports.csv");
+            FileReader file = new FileReader("src/flightlive/deps/airports.csv");
             BufferedReader bufRead = new BufferedReader(file);
 
             String line = bufRead.readLine();
