@@ -250,31 +250,6 @@ public class Geometry3D {
             posOrigin = posTarget;
         }
 
-        /*double[] posHistory = flight.getCot();
-
-        if (posHistory != null) {
-            for (int i = 0; i < posHistory.length; i++) {
-                // We collected all information about one position of the history
-                if ((i + 1) % 4 == 0) {
-                    posTarget = geoCoordTo3dCoord((float) lat, (float) lon);
-                    // Create cylinder
-                    if (posOrigin != null) {
-                        tmp = createLine(posOrigin, posTarget, scale);
-                        if (posHistory[i] < 400)
-                            tmp.setMaterial(materialL);
-                        else
-                            tmp.setMaterial(materialH);
-                        pathGroup.getChildren().add(tmp);
-                    }
-                    posOrigin = posTarget;
-                } else {
-                    if (i % 4 == 0)
-                        lat = posHistory[i];
-                    else if (i % 4 == 1)
-                        lon = posHistory[i];
-                }
-            }
-        }*/
         return 0;
     }
 
@@ -285,18 +260,16 @@ public class Geometry3D {
      * @param radius radius of the sphere
      * @param p a given point to set to center coordinates of the sphere
      */
-    public void displayRadius(Group radiusGroup, int radius, Point3D p) {
+    public void displayRadius(Group radiusGroup, float radius, Point3D p) {
         Sphere radiusIndicator = new Sphere();
         radiusIndicator.setTranslateX(p.getX());
         radiusIndicator.setTranslateY(p.getY());
         radiusIndicator.setTranslateZ(p.getZ());
-        radiusIndicator.setRadius(0.02);
-        radiusIndicator.setOpacity(0.2);
-        //radiusIndicator.setMaterial(new PhongMaterial(new Color(1.0f, 0.f, 0.f, 0.1f)));
-        //PhongMaterial material = new PhongMaterial();
-        //material.setDiffuseColor(new Color(1.0f, 1.f, 1.f, 0.2f));
-        //material.setSpecularColor(Color.INDIANRED);
-        //radiusIndicator.setMaterial(material);
+        radiusIndicator.setRadius(radius);
+
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseColor(new Color(1.0f, 0.f, 0.f, .001f));
+        radiusIndicator.setMaterial(material);
         radiusGroup.getChildren().add(radiusIndicator);
     }
 }

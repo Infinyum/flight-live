@@ -93,8 +93,8 @@ public class Controller implements Initializable {
         earthGroup.getChildren().add(radiusGroup);
 
         // Setting the materials for the planes, path and cities
-        cpFlight.setValue(Color.RED);
-        cpDepAirport.setValue(Color.YELLOW);
+        cpFlight.setValue(Color.DEEPSKYBLUE);
+        cpDepAirport.setValue(Color.RED);
         cpArrAirport.setValue(Color.GREEN);
         cpPath.setValue(Color.ORANGE);
         planesMaterial = new PhongMaterial(cpFlight.getValue());
@@ -191,7 +191,8 @@ public class Controller implements Initializable {
             if (event.isControlDown()) {
                 PickResult res = event.getPickResult();
                 Point3D p = res.getIntersectedPoint();
-                executeRadiusRequest(citiesGroup, planesGroup, pathGroup, radiusGroup, p);
+                int currentRadius = 200;
+                executeRadiusRequest(citiesGroup, planesGroup, pathGroup, radiusGroup, p, currentRadius);
             }
         });
 
@@ -245,7 +246,7 @@ public class Controller implements Initializable {
      * @param radiusGroup a group containing the sphere representing the radius
      * @return -1 if an error occured, 0 if not
      */
-    private int executeRadiusRequest(Group citiesGroup, Group planesGroup, Group pathGroup, Group radiusGroup, Point3D p) {
+    private int executeRadiusRequest(Group citiesGroup, Group planesGroup, Group pathGroup, Group radiusGroup, Point3D p, int radius) {
         // Clearing the interface
         citiesGroup.getChildren().clear();
         planesGroup.getChildren().clear();
@@ -254,8 +255,10 @@ public class Controller implements Initializable {
         lvFlights.getItems().clear();
         flightLabel.setText("");
 
+        float sphereRadius = (radius / 6365.f) * .9f;
+
         // Displaying the sphere representing the radius
-        geo3D.displayRadius(radiusGroup, 1, p);
+        geo3D.displayRadius(radiusGroup, sphereRadius, p);
         // Retrieving the corresponding latitude and longitude
         Position pos = geo3D.coord3dToGeoCoord(p);
 
