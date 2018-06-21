@@ -7,10 +7,13 @@ import flightlive.model.*;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Point3D;
+import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.PickResult;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -191,8 +194,11 @@ public class Controller implements Initializable {
             if (event.isControlDown()) {
                 PickResult res = event.getPickResult();
                 Point3D p = res.getIntersectedPoint();
-                int currentRadius = 200;
-                executeRadiusRequest(citiesGroup, planesGroup, pathGroup, radiusGroup, p, currentRadius);
+
+                int currentRadius = radiusDialog();
+                if (currentRadius != -1)
+                    executeRadiusRequest(citiesGroup, planesGroup, pathGroup, radiusGroup,
+                            p, currentRadius);
             }
         });
 
@@ -701,6 +707,49 @@ public class Controller implements Initializable {
             }
         } else
             lvFlights.getItems().clear();
+    }
+
+
+    /**
+     * Shows a dialog box which prompts the user to enter a radius value
+     * @return -1 if there is an error or if the user cancel, the radius value otherwise
+     */
+    private int radiusDialog() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Please select a radius");
+        alert.setHeaderText(null);
+
+        // A slider to select the radius
+        Slider slider = new Slider(10, 300, 10);
+        slider.valueProperty().addListener((obs, oldValue, newValue) ->
+                slider.setValue(newValue.intValue()));
+
+        // A label to show the slider's value
+        Label label = new Label("");
+        label.textProperty().bind(slider.valueProperty().asString());
+
+        // The container for the slider and label
+        HBox content = new HBox();
+        content.setAlignment(Pos.CENTER_LEFT);
+        content.setPadding(new Insets(10));
+        content.setSpacing(15);
+        content.getChildren().addAll(slider, label);
+
+        alert.getDialogPane().setContent(content);
+        alert.initModality(Modality.APPLICATION_MODAL);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        // alert is exited, no button has been pressed
+        if (!result.isPresent())
+            return -1;
+        // ok button is pressed
+        else if (result.get() == ButtonType.OK)
+            return (int)slider.getValue();
+        // cancel button is pressed
+        else if(result.get() == ButtonType.CANCEL)
+            return -1;
+
+        return -1;
     }
 
 
