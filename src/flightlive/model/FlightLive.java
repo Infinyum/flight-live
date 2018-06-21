@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * The main class of the modem. It contains the list of countries and therefore

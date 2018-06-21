@@ -278,7 +278,7 @@ public class Controller implements Initializable {
 
         // Making the request
         try {
-            currentFlightList = model.getFlightsAroundPosition(pos.getLatitude(), pos.getLongitude(), 200);
+            currentFlightList = model.getFlightsAroundPosition(pos.getLatitude(), pos.getLongitude(), radius);
         } catch (Exception e) {
             currentFlightList = null;
             return -1;
@@ -725,15 +725,17 @@ public class Controller implements Initializable {
     /**
      * A little pop-up window with some basic instructions
      */
-    public void helpDialog() {
+    private void helpDialog() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Help");
         alert.setHeaderText("Welcome to this Flight Live JavaFX application");
 
-        alert.setContentText("Here are a few instructions about how to use the application:\n"
+        alert.setContentText("This application allows to display the flights selected by the user on a globe\n\n"
+                + "Here are a few instructions about how to use it:\n"
                 + "    - you can select departure and arrival places using the drop-down menus\n"
                 + "    - if you click on the globe while pressing the Ctrl key, you can look for " +
-                "flights within a certain radius");
+                "flights within a certain radius"
+                + "\n\nYou can click on help to show this dialog");
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.showAndWait();
