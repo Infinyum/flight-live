@@ -4,6 +4,9 @@
 ![Help dialog](screenshots/help_menu.png?raw=true "The helping dialog")
 ![Interface](screenshots/interface.png?raw=true "The application interface")
 
+## Additional info
+IntelliJ Idea was the IDE of choice with JDK 10.0.1
+
 ## Authors
 Developped by Jordane MINET (Tybarn) and Robin MALMASSON (Infinyum)  
 as part of a computer engineering course taught at Polytech Paris-Sud
